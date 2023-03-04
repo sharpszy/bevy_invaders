@@ -48,13 +48,6 @@ fn enemy_spawn_system(
     win_size: Res<WinSize>,
 ) {
     if enemy_count.0 < ENEMY_MAX {
-        // compute the x/y
-        // let mut rng = thread_rng();
-        // let w_span = win_size.w / 2. - 100.;
-        // let h_span = win_size.h / 2. - 100.;
-        // let x = rng.gen_range(-w_span..w_span);
-        // let y = rng.gen_range(-h_span..h_span);
-
         // get formation and start x/y
         let formation = formation_maker.make(&win_size);
         let (x, y) = formation.start;
