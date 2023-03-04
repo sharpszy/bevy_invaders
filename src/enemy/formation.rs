@@ -14,7 +14,7 @@ pub struct Formation {
 }
 
 /// Resourece - Fromation Maker
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct FormationMaker {
     current_template: Option<Formation>,
     current_members: u32,
