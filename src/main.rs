@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
+use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
     Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, Laser, Movable,
     Player, SpriteSize, Velocity,
@@ -93,15 +94,20 @@ impl PlayerState {
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            window: WindowDescriptor {
-                title: "Bevy Indavers!".to_string(),
-                width: 598.0,
-                height: 676.0,
-                ..Default::default()
-            },
-            ..Default::default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .build()
+                .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
+                .set(WindowPlugin {
+                    window: WindowDescriptor {
+                        title: "Bevy Indavers!".to_string(),
+                        width: 598.0,
+                        height: 676.0,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                }),
+        )
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_startup_system(setup_system)
