@@ -1,4 +1,5 @@
-use bevy::{prelude::*, time::FixedTimestep};
+use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
+use rand::{thread_rng, Rng};
 
 use crate::{
     components::{FromPlayer, Laser, Movable, Player, SpriteSize, Velocity},
@@ -16,8 +17,12 @@ impl Plugin for PlayerPlugin {
                     .with_run_criteria(FixedTimestep::step(0.5))
                     .with_system(player_spawn_system),
             )
-            .add_system(player_keyboard_event_system)
-            .add_system(player_fire_system);
+            .add_system_set(
+                SystemSet::new()
+                    .with_run_criteria(player_fire_criteria)
+                    .with_system(player_fire_system),
+            )
+            .add_system(player_keyboard_event_system);
     }
 }
 
@@ -66,7 +71,7 @@ fn player_fire_system(
     query: Query<&Transform, With<Player>>,
 ) {
     if let Ok(player_tf) = query.get_single() {
-        if kb.just_pressed(KeyCode::Space) {
+        if kb.pressed(KeyCode::Space) {
             let (x, y) = (player_tf.translation.x, player_tf.translation.y);
             let x_offset = PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 5.;
 
@@ -91,6 +96,14 @@ fn player_fire_system(
             spawn_laser(x_offset);
             spawn_laser(-x_offset);
         }
+    }
+}
+
+fn player_fire_criteria() -> ShouldRun {
+    if thread_rng().gen_bool(10. / 60.) {
+        ShouldRun::Yes
+    } else {
+        ShouldRun::No
     }
 }
 
