@@ -4,14 +4,16 @@ use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
     Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, Laser, Movable,
-    Player, SpriteSize, Velocity,
+    Player, ScoreText, SpriteSize, Velocity,
 };
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
+use text::TextPlugin;
 
 mod components;
 mod enemy;
 mod player;
+mod text;
 
 // region: --- Asset Constants
 
@@ -57,6 +59,7 @@ struct GameTextures {
     enemy: Handle<Image>,
     enemy_laser: Handle<Image>,
     explosion: Handle<TextureAtlas>,
+    // score: Handle<>
 }
 
 #[derive(Resource)]
@@ -66,6 +69,7 @@ struct EnemyCount(u32);
 struct PlayerState {
     on: bool,
     last_shot: f64,
+    score: u32,
 }
 
 impl Default for PlayerState {
@@ -73,6 +77,7 @@ impl Default for PlayerState {
         Self {
             on: false,
             last_shot: -1.,
+            score: 0,
         }
     }
 }
@@ -97,6 +102,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .build()
+                // package asset files to binary
                 .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
                 .set(WindowPlugin {
                     window: WindowDescriptor {
@@ -110,6 +116,7 @@ fn main() {
         )
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
+        .add_plugin(TextPlugin)
         .add_startup_system(setup_system)
         .add_system(movable_system)
         .add_system(player_laser_hit_enemy_system)
@@ -131,9 +138,6 @@ fn setup_system(
     // capture window size
     let window = windows.get_primary_mut().unwrap();
     let (win_w, win_h) = (window.width(), window.height());
-
-    // position window (for tutorail)
-    // window.set_position(IVec2::new(500, 10));
 
     // add WinSize resource
     let win_size = WinSize { w: win_w, h: win_h };
@@ -183,8 +187,10 @@ fn movable_system(
 fn player_laser_hit_enemy_system(
     mut commands: Commands,
     mut enemy_counter: ResMut<EnemyCount>,
+    mut player_state: ResMut<PlayerState>,
     laser_query: Query<(Entity, &Transform, &SpriteSize), (With<Laser>, With<FromPlayer>)>,
     enemy_query: Query<(Entity, &Transform, &SpriteSize), With<Enemy>>,
+    mut text_query: Query<&mut Text, With<ScoreText>>,
 ) {
     let mut despawned_entities: HashSet<Entity> = HashSet::new();
 
@@ -227,6 +233,12 @@ fn player_laser_hit_enemy_system(
 
                 // spawn the ExplosionToSpawn
                 commands.spawn(ExplosionToSpawn(enemy_tf.translation.clone()));
+                player_state.score += 1;
+
+                for mut text in &mut text_query {
+                    println!("found text:{}", text.sections[0].value);
+                    text.sections[0].value = get_score_text(player_state.score);
+                }
             }
         }
     }
@@ -307,4 +319,8 @@ fn explosion_animation_system(
             }
         }
     }
+}
+
+fn get_score_text(num: u32) -> String {
+    format!("你已经消灭了 {} 个敌人！", num)
 }

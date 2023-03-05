@@ -1,8 +1,8 @@
 use bevy::prelude::{Component, Timer, Vec2, Vec3};
 
 // region: --- Common Components
-#[derive(Component)]
 
+#[derive(Component)]
 pub struct Velocity {
     pub x: f32,
     pub y: f32,
@@ -24,6 +24,9 @@ impl From<(f32, f32)> for SpriteSize {
         SpriteSize(Vec2::new(val.0, val.1))
     }
 }
+
+#[derive(Component)]
+pub struct ScoreText;
 
 // endregion: --- Common Components
 
