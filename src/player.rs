@@ -3,8 +3,8 @@ use rand::{thread_rng, Rng};
 
 use crate::{
     components::{FromPlayer, Laser, Movable, Player, SpriteSize, Velocity},
-    GameTextures, PlayerState, WinSize, PLAYER_LASER_SIZE, PLAYER_RESPAWN_DELAY, PLAYER_SIZE,
-    SPRITE_SCALE,
+    FireLevel, GameTextures, PlayerState, WinSize, PLAYER_LASER_SIZE, PLAYER_RESPAWN_DELAY,
+    PLAYER_SIZE, SPRITE_SCALE,
 };
 
 pub struct PlayerPlugin;
@@ -66,6 +66,7 @@ fn player_spawn_system(
 
 fn player_fire_system(
     mut commands: Commands,
+    player_state: ResMut<PlayerState>,
     kb: Res<Input<KeyCode>>,
     game_textures: Res<GameTextures>,
     query: Query<&Transform, With<Player>>,
@@ -73,7 +74,7 @@ fn player_fire_system(
     if let Ok(player_tf) = query.get_single() {
         if kb.pressed(KeyCode::Space) {
             let (x, y) = (player_tf.translation.x, player_tf.translation.y);
-            let x_offset = PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 5.;
+            let mut x_offset = PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 5.;
 
             let mut spawn_laser = |x_offset: f32| {
                 commands
@@ -95,6 +96,18 @@ fn player_fire_system(
 
             spawn_laser(x_offset);
             spawn_laser(-x_offset);
+            match player_state.get_level() {
+                FireLevel::Middle => {
+                    spawn_laser(0.);
+                }
+                FireLevel::Highest => {
+                    spawn_laser(0.);
+                    x_offset += 10.;
+                    spawn_laser(x_offset);
+                    spawn_laser(-x_offset);
+                }
+                _ => {}
+            }
         }
     }
 }
@@ -109,12 +122,14 @@ fn player_fire_criteria() -> ShouldRun {
 
 fn player_keyboard_event_system(
     kb: Res<Input<KeyCode>>,
-    mut query: Query<&mut Velocity, With<Player>>,
+    win_size: Res<WinSize>,
+    mut query: Query<(&Transform, &mut Velocity), With<Player>>,
 ) {
-    if let Ok(mut velocity) = query.get_single_mut() {
-        velocity.x = if kb.pressed(KeyCode::Left) {
+    if let Ok((t, mut velocity)) = query.get_single_mut() {
+        let x_half_size = win_size.w / 2.;
+        velocity.x = if kb.pressed(KeyCode::Left) && t.translation.x >= -x_half_size {
             -1.
-        } else if kb.pressed(KeyCode::Right) {
+        } else if kb.pressed(KeyCode::Right) && t.translation.x <= x_half_size {
             1.
         } else {
             0.

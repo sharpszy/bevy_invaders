@@ -20,7 +20,7 @@ impl Plugin for EnemyPlugin {
         app.insert_resource(FormationMaker::default())
             .add_system_set(
                 SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(1.))
+                    .with_run_criteria(FixedTimestep::step(0.25))
                     .with_system(enemy_spawn_system),
             )
             .add_system_set(

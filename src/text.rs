@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{components::ScoreText, get_score_text};
+use crate::components::ScoreText;
 
 pub struct TextPlugin;
 
@@ -18,7 +18,7 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                 get_score_text(0),
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                    font_size: 24.,
+                    font_size: 18.,
                     color: Color::WHITE,
                 },
             )
@@ -26,12 +26,16 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
             .with_style(Style {
                 position_type: PositionType::Absolute,
                 position: UiRect {
-                    bottom: Val::Px(5.0),
-                    right: Val::Px(15.0),
+                    top: Val::Px(5.0),
+                    left: Val::Px(15.0),
                     ..default()
                 },
                 ..default()
             }),
         )
         .insert(ScoreText);
+}
+
+pub fn get_score_text(num: u32) -> String {
+    format!("你已经消灭了 {} 个敌人！", num)
 }

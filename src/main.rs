@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide};
+use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
     Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, Laser, Movable,
@@ -9,6 +9,8 @@ use components::{
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
 use text::TextPlugin;
+
+use crate::text::get_score_text;
 
 mod components;
 mod enemy;
@@ -40,7 +42,7 @@ const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
 
 const PLAYER_RESPAWN_DELAY: f64 = 2.;
-const ENEMY_MAX: u32 = 2;
+const ENEMY_MAX: u32 = 4;
 const FORMATION_MEMBERS_MAX: u32 = 2;
 
 // endregion: --- Game Constatns
@@ -70,6 +72,13 @@ struct PlayerState {
     on: bool,
     last_shot: f64,
     score: u32,
+    current_score: u32,
+}
+
+enum FireLevel {
+    Base,
+    Middle,
+    Highest,
 }
 
 impl Default for PlayerState {
@@ -78,6 +87,7 @@ impl Default for PlayerState {
             on: false,
             last_shot: -1.,
             score: 0,
+            current_score: 0,
         }
     }
 }
@@ -91,6 +101,22 @@ impl PlayerState {
     pub fn spawned(&mut self) {
         self.on = true;
         self.last_shot = -1.;
+        self.current_score = 0;
+    }
+
+    pub fn increase_score(&mut self) {
+        self.score += 1;
+        self.current_score += 1;
+    }
+
+    pub fn get_level(&self) -> FireLevel {
+        if self.current_score < 10 {
+            FireLevel::Base
+        } else if self.current_score >= 10 && self.current_score <= 50 {
+            FireLevel::Middle
+        } else {
+            FireLevel::Highest
+        }
     }
 }
 
@@ -109,11 +135,13 @@ fn main() {
                         title: "Bevy Indavers!".to_string(),
                         width: 598.0,
                         height: 676.0,
+                        resizable: false,
                         ..Default::default()
                     },
                     ..Default::default()
                 }),
         )
+        // .add_system(window_resize_listener) // FIXME, this will be exe every tick time
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_plugin(TextPlugin)
@@ -159,6 +187,16 @@ fn setup_system(
     };
     commands.insert_resource(game_textures);
     commands.insert_resource(EnemyCount(0));
+}
+
+fn window_resize_listener(
+    mut win_size: ResMut<WinSize>,
+    mut resize_events: EventReader<WindowResized>,
+) {
+    for e in resize_events.iter() {
+        win_size.w = e.width;
+        win_size.h = e.height;
+    }
 }
 
 fn movable_system(
@@ -233,10 +271,11 @@ fn player_laser_hit_enemy_system(
 
                 // spawn the ExplosionToSpawn
                 commands.spawn(ExplosionToSpawn(enemy_tf.translation.clone()));
-                player_state.score += 1;
+
+                // update the score
+                player_state.increase_score();
 
                 for mut text in &mut text_query {
-                    println!("found text:{}", text.sections[0].value);
                     text.sections[0].value = get_score_text(player_state.score);
                 }
             }
@@ -319,8 +358,4 @@ fn explosion_animation_system(
             }
         }
     }
-}
-
-fn get_score_text(num: u32) -> String {
-    format!("你已经消灭了 {} 个敌人！", num)
 }
