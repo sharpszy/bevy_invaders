@@ -1,4 +1,7 @@
-use std::collections::HashSet;
+use std::{
+    collections::HashSet,
+    time::{Duration, SystemTime},
+};
 
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -16,6 +19,7 @@ mod components;
 mod enemy;
 mod player;
 mod text;
+mod tools;
 
 // region: --- Asset Constants
 
@@ -42,6 +46,8 @@ const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
 
 const PLAYER_RESPAWN_DELAY: f64 = 2.;
+const PLAYER_INVINCIBLE_DURATION: Duration = Duration::from_secs(2); // 玩家无敌持续时间
+
 const ENEMY_MAX: u32 = 4;
 const FORMATION_MEMBERS_MAX: u32 = 2;
 
@@ -71,6 +77,8 @@ struct EnemyCount(u32);
 struct PlayerState {
     on: bool,
     last_shot: f64,
+    born: SystemTime,
+    is_invincible: bool,
     score: u32,
     current_score: u32,
 }
@@ -86,6 +94,8 @@ impl Default for PlayerState {
         Self {
             on: false,
             last_shot: -1.,
+            born: SystemTime::now(),
+            is_invincible: true,
             score: 0,
             current_score: 0,
         }
@@ -101,12 +111,27 @@ impl PlayerState {
     pub fn spawned(&mut self) {
         self.on = true;
         self.last_shot = -1.;
+        self.born = SystemTime::now();
+        self.is_invincible = true;
         self.current_score = 0;
     }
 
     pub fn increase_score(&mut self) {
         self.score += 1;
         self.current_score += 1;
+    }
+
+    pub fn hit_to_die(&mut self) -> bool {
+        if self.is_invincible {
+            if SystemTime::now()
+                .duration_since(self.born)
+                .unwrap()
+                .gt(&PLAYER_INVINCIBLE_DURATION)
+            {
+                self.is_invincible = false;
+            }
+        }
+        !self.is_invincible
     }
 
     pub fn get_level(&self) -> FireLevel {
@@ -305,6 +330,10 @@ fn enemy_laser_hit_player_system(
 
             // perform the collision
             if let Some(_) = collision {
+                if !player_state.hit_to_die() {
+                    break;
+                }
+
                 // remove the player
                 commands.entity(player_entity).despawn();
                 player_state.shot(time.elapsed_seconds_f64());
