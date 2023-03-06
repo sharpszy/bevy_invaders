@@ -110,30 +110,20 @@ impl PlayerState {
     }
 
     pub fn get_fire_level(&self) -> GameLevel {
-        if self.current_score < 10 {
-            GameLevel::Basic
-        } else if self.current_score >= 10 && self.current_score < 30 {
-            GameLevel::Middle
-        } else if self.current_score >= 30 && self.current_score < 60 {
-            GameLevel::Strong
-        } else if self.current_score >= 60 && self.current_score < 100 {
-            GameLevel::Powerful
-        } else {
-            GameLevel::Invincible
-        }
+        Self::compute_game_level(self.current_score)
     }
 
     pub fn get_game_level(&self) -> GameLevel {
-        if self.total_score < 10 {
-            GameLevel::Basic
-        } else if self.total_score >= 10 && self.total_score < 30 {
-            GameLevel::Middle
-        } else if self.total_score >= 30 && self.total_score < 60 {
-            GameLevel::Strong
-        } else if self.total_score >= 60 && self.total_score < 100 {
-            GameLevel::Powerful
-        } else {
-            GameLevel::Invincible
+        Self::compute_game_level(self.total_score)
+    }
+
+    fn compute_game_level(score: u32) -> GameLevel {
+        match score {
+            0..=9 => GameLevel::Basic,
+            10..=29 => GameLevel::Middle,
+            30..=59 => GameLevel::Strong,
+            60..=99 => GameLevel::Powerful,
+            _ => GameLevel::Invincible,
         }
     }
 }
@@ -144,7 +134,7 @@ impl Default for EnemyState {
             count: 0,
             level: GameLevel::Basic,
             level_count: 2,
-            velocity: -0.6,
+            velocity: -0.5,
         }
     }
 }
@@ -158,7 +148,7 @@ impl EnemyState {
             GameLevel::Basic => {
                 self.level = GameLevel::Basic;
                 self.level_count = 2;
-                self.velocity = -0.6;
+                self.velocity = -0.5;
             }
             GameLevel::Middle => {
                 self.level = GameLevel::Middle;
@@ -168,17 +158,17 @@ impl EnemyState {
             GameLevel::Strong => {
                 self.level = GameLevel::Strong;
                 self.level_count = 4;
-                self.velocity = -0.8;
+                self.velocity = -0.9;
             }
             GameLevel::Powerful => {
                 self.level = GameLevel::Powerful;
                 self.level_count = 5;
-                self.velocity = -1.;
+                self.velocity = -1.1;
             }
             GameLevel::Invincible => {
                 self.level = GameLevel::Invincible;
                 self.level_count = 6;
-                self.velocity = -1.2;
+                self.velocity = -1.3;
             }
         }
     }
