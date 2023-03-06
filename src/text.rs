@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{LifeText, ScoreText},
+    components::{GameOverText, LifeText, ScoreText},
     consts::{self},
 };
 
@@ -53,11 +53,11 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
 }
 
 pub fn get_current_score_text(num: u32) -> String {
-    format!("本轮消灭敌人数: {}", num)
+    format!("本轮歼灭敌机数: {}", num)
 }
 
 pub fn get_total_score_text(num: u32) -> String {
-    format!("总共消灭敌人数: {}", num)
+    format!("总共歼灭敌机数: {}", num)
 }
 
 fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -69,12 +69,19 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
                     font_size: 20.,
-                    color: Color::BLUE,
+                    color: Color::GOLD,
                 },
             )])
             .with_text_alignment(TextAlignment::TOP_CENTER)
             .with_style(Style {
+                size: Size {
+                    width: Val::Px(100.),
+                    ..default()
+                },
                 position_type: PositionType::Absolute,
+                flex_wrap: FlexWrap::Wrap,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::FlexStart,
                 position: UiRect {
                     top: Val::Px(5.0),
                     right: Val::Px(15.0),
@@ -88,4 +95,38 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
 
 pub fn get_lives_text(num: u32) -> String {
     format!("你还有 {} 条命！", num)
+}
+
+pub fn game_over_text_bundle(asset_server: Res<AssetServer>) -> (TextBundle, GameOverText) {
+    (
+        TextBundle::from_sections([
+            TextSection::new(
+                "游戏结束",
+                TextStyle {
+                    font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                    font_size: 28.,
+                    color: Color::RED,
+                },
+            ),
+            TextSection::new(
+                "按[P]继续",
+                TextStyle {
+                    font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                    font_size: 22.,
+                    color: Color::ORANGE_RED,
+                },
+            ),
+        ])
+        .with_text_alignment(TextAlignment::TOP_CENTER)
+        .with_style(Style {
+            size: Size {
+                width: Val::Px(90.),
+                ..default()
+            },
+            border: UiRect::new(Val::Px(10.), Val::Px(10.), Val::Px(10.), Val::Px(10.)),
+            flex_direction: FlexDirection::Column,
+            ..default()
+        }),
+        GameOverText,
+    )
 }

@@ -31,6 +31,9 @@ pub struct ScoreText;
 #[derive(Component)]
 pub struct LifeText;
 
+#[derive(Component)]
+pub struct GameOverText;
+
 // endregion: --- Common Components
 
 // region: --- Player Components

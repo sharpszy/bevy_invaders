@@ -4,7 +4,7 @@ use rand::{thread_rng, Rng};
 use crate::{
     components::{FromPlayer, Laser, Movable, Player, ScoreText, SpriteSize, Velocity},
     consts::{self, PLAYER_RESPAWN_DELAY},
-    entity::GameLevel,
+    entity::{GameLevel, GameState},
     text::get_current_score_text,
     GameTextures, PlayerState, WinSize,
 };
@@ -31,12 +31,13 @@ impl Plugin for PlayerPlugin {
 fn player_spawn_system(
     mut commands: Commands,
     mut player_state: ResMut<PlayerState>,
+    game_state: ResMut<GameState>,
     time: Res<Time>,
     game_textures: Res<GameTextures>,
     win_size: Res<WinSize>,
     mut text_query: Query<&mut Text, With<ScoreText>>,
 ) {
-    if player_state.game_over() {
+    if game_state.is_over {
         return;
     }
 

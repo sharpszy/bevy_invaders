@@ -38,6 +38,12 @@ pub struct EnemyState {
 }
 
 #[derive(Resource)]
+pub struct GameState {
+    pub show: bool,
+    pub is_over: bool,
+}
+
+#[derive(Resource)]
 pub struct PlayerState {
     pub on: bool,
     pub last_shot: f64,
@@ -63,12 +69,13 @@ impl Default for PlayerState {
 }
 
 impl PlayerState {
-    pub fn shot(&mut self, time: f64) {
+    pub fn shot(&mut self, time: f64) -> u32 {
         self.on = false;
         self.last_shot = time;
         if self.lives > 0 {
             self.lives -= 1;
         }
+        self.lives
     }
 
     pub fn spawned(&mut self) {
@@ -77,6 +84,11 @@ impl PlayerState {
         self.born = SystemTime::now();
         self.is_invincible = true;
         self.current_score = 0;
+    }
+
+    pub fn replay(&mut self) {
+        self.lives = consts::PLAYER_MAX_LIVES;
+        self.total_score = 0;
     }
 
     pub fn increase_score(&mut self) {
@@ -124,10 +136,6 @@ impl PlayerState {
             GameLevel::Invincible
         }
     }
-
-    pub fn game_over(&self) -> bool {
-        self.lives <= 0
-    }
 }
 
 impl Default for EnemyState {
@@ -173,5 +181,21 @@ impl EnemyState {
                 self.velocity = -1.2;
             }
         }
+    }
+}
+
+impl Default for GameState {
+    fn default() -> Self {
+        Self {
+            show: false,
+            is_over: false,
+        }
+    }
+}
+
+impl GameState {
+    pub fn reset(&mut self) {
+        self.show = false;
+        self.is_over = false;
     }
 }

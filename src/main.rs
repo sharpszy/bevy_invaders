@@ -3,11 +3,11 @@ use std::collections::HashSet;
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
-    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, Laser, LifeText,
-    Movable, Player, ScoreText, SpriteSize, Velocity,
+    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, GameOverText, Laser,
+    LifeText, Movable, Player, ScoreText, SpriteSize, Velocity,
 };
 use enemy::EnemyPlugin;
-use entity::{EnemyState, GameTextures, PlayerState, WinSize};
+use entity::{EnemyState, GameState, GameTextures, PlayerState, WinSize};
 use player::PlayerPlugin;
 use text::{get_current_score_text, get_lives_text, TextPlugin};
 
@@ -50,6 +50,7 @@ fn main() {
         .add_system(enemy_laser_hit_player_system)
         .add_system(explosion_to_spawn_system)
         .add_system(explosion_animation_system)
+        .add_system(game_over_system)
         .run();
 }
 
@@ -86,6 +87,9 @@ fn setup_system(
     };
     commands.insert_resource(game_textures);
     commands.insert_resource(EnemyState::default());
+
+    // add game state resource
+    commands.insert_resource(GameState::default());
 }
 
 #[allow(dead_code)]
@@ -191,6 +195,7 @@ fn player_laser_hit_enemy_system(
 fn enemy_laser_hit_player_system(
     mut commands: Commands,
     mut player_state: ResMut<PlayerState>,
+    mut game_state: ResMut<GameState>,
     time: Res<Time>,
     laser_query: Query<(Entity, &Transform, &SpriteSize), (With<Laser>, With<FromEnemy>)>,
     player_query: Query<(Entity, &Transform, &SpriteSize), With<Player>>,
@@ -217,7 +222,9 @@ fn enemy_laser_hit_player_system(
 
                 // remove the player
                 commands.entity(player_entity).despawn();
-                player_state.shot(time.elapsed_seconds_f64());
+                if player_state.shot(time.elapsed_seconds_f64()) == 0 {
+                    game_state.is_over = true;
+                }
 
                 // remove the laser
                 commands.entity(laser_entity).despawn();
@@ -271,6 +278,50 @@ fn explosion_animation_system(
             if sprite.index >= consts::EXPLOSION_LEN {
                 commands.entity(entity).despawn();
             }
+        }
+    }
+}
+
+fn game_over_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    kb: Res<Input<KeyCode>>,
+    mut game_state: ResMut<GameState>,
+    mut player_state: ResMut<PlayerState>,
+    mut text_set: ParamSet<(
+        Query<(Entity, &Text), With<GameOverText>>,
+        Query<&mut Text, With<LifeText>>,
+        Query<&mut Text, With<ScoreText>>,
+    )>,
+) {
+    if !game_state.is_over {
+        return;
+    }
+    if !game_state.show {
+        game_state.show = true;
+        commands.spawn(text::game_over_text_bundle(asset_server));
+    }
+
+    if kb.just_pressed(KeyCode::P) {
+        // despawn game over text
+        let game_over_text = text_set.p0();
+        for (entity, _) in game_over_text.iter() {
+            commands.entity(entity).despawn();
+        }
+        game_state.reset();
+        player_state.replay();
+
+        // update life text
+        let mut life_text = text_set.p1();
+        for mut text in &mut life_text {
+            text.sections[0].value = get_lives_text(player_state.lives);
+        }
+
+        // update text
+        let mut score_text = text_set.p2();
+        for mut text in &mut score_text {
+            text.sections[0].value = get_current_score_text(player_state.current_score);
+            text.sections[1].value = get_total_score_text(player_state.total_score);
         }
     }
 }
