@@ -98,19 +98,38 @@ fn player_fire_system(
                     .insert(Velocity { x: 0., y: 1. });
             };
 
-            spawn_laser(x_offset);
-            spawn_laser(-x_offset);
+            // FIXME 代码待重构
             match player_state.get_level() {
-                FireLevel::Middle => {
+                FireLevel::Base => {
                     spawn_laser(0.);
                 }
-                FireLevel::Highest => {
+                FireLevel::Middle => {
+                    spawn_laser(x_offset);
+                    spawn_laser(-x_offset);
+                }
+                FireLevel::Strong => {
                     spawn_laser(0.);
+                    spawn_laser(x_offset);
+                    spawn_laser(-x_offset);
+                }
+                FireLevel::Powerful => {
+                    spawn_laser(0.);
+                    spawn_laser(x_offset);
+                    spawn_laser(-x_offset);
                     x_offset += 10.;
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
                 }
-                _ => {}
+                FireLevel::Invincible => {
+                    let middle_offset = 5.;
+                    spawn_laser(middle_offset);
+                    spawn_laser(-middle_offset);
+                    spawn_laser(x_offset);
+                    spawn_laser(-x_offset);
+                    x_offset += 10.;
+                    spawn_laser(x_offset);
+                    spawn_laser(-x_offset);
+                }
             }
         }
     }

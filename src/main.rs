@@ -46,8 +46,8 @@ const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
 
 const PLAYER_RESPAWN_DELAY: f64 = 2.;
-const PLAYER_MAX_LIVES: u32 = 4;
-const PLAYER_INVINCIBLE_DURATION: Duration = Duration::from_secs(2); // 玩家无敌持续时间
+const PLAYER_MAX_LIVES: u32 = 5;
+const PLAYER_INVINCIBLE_DURATION: Duration = Duration::from_secs(3); // 玩家无敌持续时间
 
 const ENEMY_MAX: u32 = 4;
 const FORMATION_MEMBERS_MAX: u32 = 2;
@@ -88,7 +88,9 @@ struct PlayerState {
 enum FireLevel {
     Base,
     Middle,
-    Highest,
+    Strong,
+    Powerful,
+    Invincible,
 }
 
 impl Default for PlayerState {
@@ -143,10 +145,14 @@ impl PlayerState {
     pub fn get_level(&self) -> FireLevel {
         if self.current_score < 10 {
             FireLevel::Base
-        } else if self.current_score >= 10 && self.current_score <= 50 {
+        } else if self.current_score >= 10 && self.current_score < 30 {
             FireLevel::Middle
+        } else if self.current_score >= 30 && self.current_score < 60 {
+            FireLevel::Strong
+        } else if self.current_score >= 60 && self.current_score < 100 {
+            FireLevel::Powerful
         } else {
-            FireLevel::Highest
+            FireLevel::Invincible
         }
     }
 
