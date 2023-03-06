@@ -155,12 +155,21 @@ fn player_keyboard_event_system(
 ) {
     if let Ok((t, mut velocity)) = query.get_single_mut() {
         let x_half_size = win_size.w / 2.;
-        velocity.x = if kb.pressed(KeyCode::Left) && t.translation.x >= -x_half_size {
+        let y_half_size = win_size.h / 2.;
+        velocity.x = if kb.pressed(KeyCode::Left) && t.translation.x > -x_half_size {
             -1.
-        } else if kb.pressed(KeyCode::Right) && t.translation.x <= x_half_size {
+        } else if kb.pressed(KeyCode::Right) && t.translation.x < x_half_size {
             1.
         } else {
             0.
         };
+
+        velocity.y = if kb.pressed(KeyCode::Up) && t.translation.y < y_half_size {
+            1.
+        } else if kb.pressed(KeyCode::Down) && t.translation.y > -y_half_size {
+            -1.
+        } else {
+            0.
+        }
     }
 }
