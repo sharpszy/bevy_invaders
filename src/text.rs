@@ -18,17 +18,29 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
     // add score text resource
     commands
         .spawn(
-            TextBundle::from_section(
-                get_score_text(0),
-                TextStyle {
-                    font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                    font_size: 18.,
-                    color: Color::WHITE,
-                },
-            )
+            TextBundle::from_sections([
+                TextSection::new(
+                    get_current_score_text(0),
+                    TextStyle {
+                        font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                        font_size: 18.,
+                        color: Color::WHITE,
+                    },
+                ),
+                TextSection::new(
+                    get_total_score_text(0),
+                    TextStyle {
+                        font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                        font_size: 22.,
+                        color: Color::ORANGE_RED,
+                    },
+                ),
+            ])
             .with_text_alignment(TextAlignment::TOP_CENTER)
             .with_style(Style {
+                display: Display::Flex,
                 position_type: PositionType::Absolute,
+                flex_wrap: FlexWrap::Wrap,
                 position: UiRect {
                     top: Val::Px(5.0),
                     left: Val::Px(15.0),
@@ -40,22 +52,26 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
         .insert(ScoreText);
 }
 
-pub fn get_score_text(num: u32) -> String {
-    format!("你已经消灭了 {} 个敌人！", num)
+pub fn get_current_score_text(num: u32) -> String {
+    format!("本轮消灭敌人数: {}", num)
+}
+
+pub fn get_total_score_text(num: u32) -> String {
+    format!("总共消灭敌人数: {}", num)
 }
 
 fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer>) {
     // add score text resource
     commands
         .spawn(
-            TextBundle::from_section(
+            TextBundle::from_sections([TextSection::new(
                 get_lives_text(PLAYER_MAX_LIVES),
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
                     font_size: 20.,
                     color: Color::BLUE,
                 },
-            )
+            )])
             .with_text_alignment(TextAlignment::TOP_CENTER)
             .with_style(Style {
                 position_type: PositionType::Absolute,

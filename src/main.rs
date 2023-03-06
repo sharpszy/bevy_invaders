@@ -11,9 +11,9 @@ use components::{
 };
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
-use text::{get_lives_text, TextPlugin};
+use text::{get_current_score_text, get_lives_text, TextPlugin};
 
-use crate::text::get_score_text;
+use crate::text::get_total_score_text;
 
 mod components;
 mod enemy;
@@ -80,8 +80,8 @@ struct PlayerState {
     last_shot: f64,
     born: SystemTime,
     is_invincible: bool,
-    score: u32,
     current_score: u32,
+    total_score: u32,
     lives: u32,
 }
 
@@ -100,8 +100,8 @@ impl Default for PlayerState {
             last_shot: -1.,
             born: SystemTime::now(),
             is_invincible: true,
-            score: 0,
             current_score: 0,
+            total_score: 0,
             lives: PLAYER_MAX_LIVES,
         }
     }
@@ -125,7 +125,7 @@ impl PlayerState {
     }
 
     pub fn increase_score(&mut self) {
-        self.score += 1;
+        self.total_score += 1;
         self.current_score += 1;
     }
 
@@ -316,7 +316,8 @@ fn player_laser_hit_enemy_system(
                 // update the score
                 player_state.increase_score();
                 for mut text in &mut text_query {
-                    text.sections[0].value = get_score_text(player_state.score);
+                    text.sections[0].value = get_current_score_text(player_state.current_score);
+                    text.sections[1].value = get_total_score_text(player_state.total_score);
                 }
             }
         }

@@ -2,7 +2,8 @@ use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
 use rand::{thread_rng, Rng};
 
 use crate::{
-    components::{FromPlayer, Laser, Movable, Player, SpriteSize, Velocity},
+    components::{FromPlayer, Laser, Movable, Player, ScoreText, SpriteSize, Velocity},
+    text::get_current_score_text,
     FireLevel, GameTextures, PlayerState, WinSize, PLAYER_LASER_SIZE, PLAYER_RESPAWN_DELAY,
     PLAYER_SIZE, SPRITE_SCALE,
 };
@@ -32,6 +33,7 @@ fn player_spawn_system(
     time: Res<Time>,
     game_textures: Res<GameTextures>,
     win_size: Res<WinSize>,
+    mut text_query: Query<&mut Text, With<ScoreText>>,
 ) {
     if player_state.game_over() {
         return;
@@ -65,6 +67,9 @@ fn player_spawn_system(
             .insert(Velocity { x: 0., y: 0. });
 
         player_state.spawned();
+        for mut text in &mut text_query {
+            text.sections[0].value = get_current_score_text(player_state.current_score);
+        }
     }
 }
 
