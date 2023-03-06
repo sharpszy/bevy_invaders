@@ -33,6 +33,10 @@ fn player_spawn_system(
     game_textures: Res<GameTextures>,
     win_size: Res<WinSize>,
 ) {
+    if player_state.game_over() {
+        return;
+    }
+
     let now = time.elapsed_seconds_f64();
     let last_shot = player_state.last_shot;
 

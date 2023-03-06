@@ -6,12 +6,12 @@ use std::{
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
-    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, Laser, Movable,
-    Player, ScoreText, SpriteSize, Velocity,
+    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, Laser, LifeText,
+    Movable, Player, ScoreText, SpriteSize, Velocity,
 };
 use enemy::EnemyPlugin;
 use player::PlayerPlugin;
-use text::TextPlugin;
+use text::{get_lives_text, TextPlugin};
 
 use crate::text::get_score_text;
 
@@ -46,6 +46,7 @@ const TIME_STEP: f32 = 1. / 60.;
 const BASE_SPEED: f32 = 500.;
 
 const PLAYER_RESPAWN_DELAY: f64 = 2.;
+const PLAYER_MAX_LIVES: u32 = 4;
 const PLAYER_INVINCIBLE_DURATION: Duration = Duration::from_secs(2); // 玩家无敌持续时间
 
 const ENEMY_MAX: u32 = 4;
@@ -81,6 +82,7 @@ struct PlayerState {
     is_invincible: bool,
     score: u32,
     current_score: u32,
+    lives: u32,
 }
 
 enum FireLevel {
@@ -98,6 +100,7 @@ impl Default for PlayerState {
             is_invincible: true,
             score: 0,
             current_score: 0,
+            lives: PLAYER_MAX_LIVES,
         }
     }
 }
@@ -106,6 +109,9 @@ impl PlayerState {
     pub fn shot(&mut self, time: f64) {
         self.on = false;
         self.last_shot = time;
+        if self.lives > 0 {
+            self.lives -= 1;
+        }
     }
 
     pub fn spawned(&mut self) {
@@ -142,6 +148,10 @@ impl PlayerState {
         } else {
             FireLevel::Highest
         }
+    }
+
+    pub fn game_over(&self) -> bool {
+        self.lives <= 0
     }
 }
 
@@ -299,7 +309,6 @@ fn player_laser_hit_enemy_system(
 
                 // update the score
                 player_state.increase_score();
-
                 for mut text in &mut text_query {
                     text.sections[0].value = get_score_text(player_state.score);
                 }
@@ -314,6 +323,7 @@ fn enemy_laser_hit_player_system(
     time: Res<Time>,
     laser_query: Query<(Entity, &Transform, &SpriteSize), (With<Laser>, With<FromEnemy>)>,
     player_query: Query<(Entity, &Transform, &SpriteSize), With<Player>>,
+    mut text_query: Query<&mut Text, With<LifeText>>,
 ) {
     if let Ok((player_entity, player_tf, player_size)) = player_query.get_single() {
         let player_scale = player_tf.scale.xy();
@@ -343,6 +353,11 @@ fn enemy_laser_hit_player_system(
 
                 // spawn the ExplosionToSpawn
                 commands.spawn(ExplosionToSpawn(player_tf.translation.clone()));
+
+                // update life text
+                for mut text in &mut text_query {
+                    text.sections[0].value = get_lives_text(player_state.lives);
+                }
 
                 break;
             }

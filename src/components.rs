@@ -28,6 +28,9 @@ impl From<(f32, f32)> for SpriteSize {
 #[derive(Component)]
 pub struct ScoreText;
 
+#[derive(Component)]
+pub struct LifeText;
+
 // endregion: --- Common Components
 
 // region: --- Player Components
