@@ -3,9 +3,10 @@ use rand::{thread_rng, Rng};
 
 use crate::{
     components::{FromPlayer, Laser, Movable, Player, ScoreText, SpriteSize, Velocity},
+    entity::GameLevel,
     text::get_current_score_text,
-    FireLevel, GameTextures, PlayerState, WinSize, PLAYER_LASER_SIZE, PLAYER_RESPAWN_DELAY,
-    PLAYER_SIZE, SPRITE_SCALE,
+    GameTextures, PlayerState, WinSize, PLAYER_LASER_SIZE, PLAYER_RESPAWN_DELAY, PLAYER_SIZE,
+    SPRITE_SCALE,
 };
 
 pub struct PlayerPlugin;
@@ -104,20 +105,20 @@ fn player_fire_system(
             };
 
             // FIXME 代码待重构
-            match player_state.get_level() {
-                FireLevel::Base => {
+            match player_state.get_fire_level() {
+                GameLevel::Basic => {
                     spawn_laser(0.);
                 }
-                FireLevel::Middle => {
+                GameLevel::Middle => {
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
                 }
-                FireLevel::Strong => {
+                GameLevel::Strong => {
                     spawn_laser(0.);
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
                 }
-                FireLevel::Powerful => {
+                GameLevel::Powerful => {
                     spawn_laser(0.);
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
@@ -125,7 +126,7 @@ fn player_fire_system(
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
                 }
-                FireLevel::Invincible => {
+                GameLevel::Invincible => {
                     let middle_offset = 5.;
                     spawn_laser(middle_offset);
                     spawn_laser(-middle_offset);

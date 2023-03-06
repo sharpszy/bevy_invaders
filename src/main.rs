@@ -1,7 +1,4 @@
-use std::{
-    collections::HashSet,
-    time::{Duration, SystemTime},
-};
+use std::{collections::HashSet, time::Duration};
 
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -10,6 +7,7 @@ use components::{
     Movable, Player, ScoreText, SpriteSize, Velocity,
 };
 use enemy::EnemyPlugin;
+use entity::{EnemyCount, GameTextures, PlayerState, WinSize};
 use player::PlayerPlugin;
 use text::{get_current_score_text, get_lives_text, TextPlugin};
 
@@ -17,6 +15,7 @@ use crate::text::get_total_score_text;
 
 mod components;
 mod enemy;
+mod entity;
 mod player;
 mod text;
 mod tools;
@@ -53,115 +52,6 @@ const ENEMY_MAX: u32 = 4;
 const FORMATION_MEMBERS_MAX: u32 = 2;
 
 // endregion: --- Game Constatns
-
-// region: --- Resources
-#[derive(Resource)]
-pub struct WinSize {
-    pub w: f32,
-    pub h: f32,
-}
-
-#[derive(Resource)]
-struct GameTextures {
-    player: Handle<Image>,
-    palyer_laser: Handle<Image>,
-    enemy: Handle<Image>,
-    enemy_laser: Handle<Image>,
-    explosion: Handle<TextureAtlas>,
-    // score: Handle<>
-}
-
-#[derive(Resource)]
-struct EnemyCount(u32);
-
-#[derive(Resource)]
-struct PlayerState {
-    on: bool,
-    last_shot: f64,
-    born: SystemTime,
-    is_invincible: bool,
-    current_score: u32,
-    total_score: u32,
-    lives: u32,
-}
-
-enum FireLevel {
-    Base,
-    Middle,
-    Strong,
-    Powerful,
-    Invincible,
-}
-
-impl Default for PlayerState {
-    fn default() -> Self {
-        Self {
-            on: false,
-            last_shot: -1.,
-            born: SystemTime::now(),
-            is_invincible: true,
-            current_score: 0,
-            total_score: 0,
-            lives: PLAYER_MAX_LIVES,
-        }
-    }
-}
-
-impl PlayerState {
-    pub fn shot(&mut self, time: f64) {
-        self.on = false;
-        self.last_shot = time;
-        if self.lives > 0 {
-            self.lives -= 1;
-        }
-    }
-
-    pub fn spawned(&mut self) {
-        self.on = true;
-        self.last_shot = -1.;
-        self.born = SystemTime::now();
-        self.is_invincible = true;
-        self.current_score = 0;
-    }
-
-    pub fn increase_score(&mut self) {
-        self.total_score += 1;
-        self.current_score += 1;
-    }
-
-    pub fn hit_to_die(&mut self) -> bool {
-        if self.is_invincible {
-            if SystemTime::now()
-                .duration_since(self.born)
-                .unwrap()
-                .gt(&PLAYER_INVINCIBLE_DURATION)
-            {
-                self.is_invincible = false;
-            }
-        }
-        !self.is_invincible
-    }
-
-    pub fn get_level(&self) -> FireLevel {
-        if self.current_score < 10 {
-            FireLevel::Base
-        } else if self.current_score >= 10 && self.current_score < 30 {
-            FireLevel::Middle
-        } else if self.current_score >= 30 && self.current_score < 60 {
-            FireLevel::Strong
-        } else if self.current_score >= 60 && self.current_score < 100 {
-            FireLevel::Powerful
-        } else {
-            FireLevel::Invincible
-        }
-    }
-
-    pub fn game_over(&self) -> bool {
-        self.lives <= 0
-    }
-}
-
-// endregion: --- Resources
 
 fn main() {
     App::new()
@@ -230,6 +120,7 @@ fn setup_system(
     commands.insert_resource(EnemyCount(0));
 }
 
+#[allow(dead_code)]
 fn window_resize_listener(
     mut win_size: ResMut<WinSize>,
     mut resize_events: EventReader<WindowResized>,
