@@ -5,8 +5,8 @@ use rand::{thread_rng, Rng};
 
 use crate::{
     components::{Enemy, FromEnemy, Laser, Movable, SpriteSize, Velocity},
-    consts::{self, ENEMY_MAX},
-    entity::{EnemyCount, GameTextures, WinSize},
+    consts::{self},
+    entity::{EnemyState, GameTextures, WinSize},
 };
 
 use self::formation::{Formation, FormationMaker};
@@ -43,11 +43,11 @@ fn enemy_fire_criteria() -> ShouldRun {
 fn enemy_spawn_system(
     mut commands: Commands,
     game_textures: Res<GameTextures>,
-    mut enemy_count: ResMut<EnemyCount>,
+    mut enemy_state: ResMut<EnemyState>,
     mut formation_maker: ResMut<FormationMaker>,
     win_size: Res<WinSize>,
 ) {
-    if enemy_count.0 < ENEMY_MAX {
+    if enemy_state.count < enemy_state.level_count {
         // get formation and start x/y
         let formation = formation_maker.make(&win_size);
         let (x, y) = formation.start;
@@ -67,13 +67,14 @@ fn enemy_spawn_system(
             .insert(formation)
             .insert(SpriteSize::from(consts::ENEMY_SIZE));
 
-        enemy_count.0 += 1;
+        enemy_state.count += 1;
     }
 }
 
 fn enemy_fire_system(
     mut commands: Commands,
     game_textures: Res<GameTextures>,
+    enemy_state: ResMut<EnemyState>,
     enemy_query: Query<&Transform, With<Enemy>>,
 ) {
     for tf in enemy_query.iter() {
@@ -93,7 +94,10 @@ fn enemy_fire_system(
             .insert(SpriteSize::from(consts::ENEMY_LASER_SIZE))
             .insert(FromEnemy)
             .insert(Movable { auto_despawn: true })
-            .insert(Velocity { x: 0., y: -1. });
+            .insert(Velocity {
+                x: 0.,
+                y: enemy_state.velocity,
+            });
     }
 }
 

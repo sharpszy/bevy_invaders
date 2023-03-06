@@ -7,7 +7,7 @@ use components::{
     Movable, Player, ScoreText, SpriteSize, Velocity,
 };
 use enemy::EnemyPlugin;
-use entity::{EnemyCount, GameTextures, PlayerState, WinSize};
+use entity::{EnemyState, GameTextures, PlayerState, WinSize};
 use player::PlayerPlugin;
 use text::{get_current_score_text, get_lives_text, TextPlugin};
 
@@ -85,7 +85,7 @@ fn setup_system(
         explosion,
     };
     commands.insert_resource(game_textures);
-    commands.insert_resource(EnemyCount(0));
+    commands.insert_resource(EnemyState::default());
 }
 
 #[allow(dead_code)]
@@ -124,7 +124,7 @@ fn movable_system(
 
 fn player_laser_hit_enemy_system(
     mut commands: Commands,
-    mut enemy_counter: ResMut<EnemyCount>,
+    mut enemy_state: ResMut<EnemyState>,
     mut player_state: ResMut<PlayerState>,
     laser_query: Query<(Entity, &Transform, &SpriteSize), (With<Laser>, With<FromPlayer>)>,
     enemy_query: Query<(Entity, &Transform, &SpriteSize), With<Enemy>>,
@@ -163,7 +163,7 @@ fn player_laser_hit_enemy_system(
                 // remove the enemy
                 commands.entity(enemy_enity).despawn();
                 despawned_entities.insert(enemy_enity);
-                enemy_counter.0 -= 1;
+                enemy_state.count -= 1;
 
                 // remove the laser
                 commands.entity(laser_entity).despawn();
@@ -174,6 +174,11 @@ fn player_laser_hit_enemy_system(
 
                 // update the score
                 player_state.increase_score();
+
+                // udpate enemy state
+                enemy_state.update(player_state.get_game_level());
+
+                // update text
                 for mut text in &mut text_query {
                     text.sections[0].value = get_current_score_text(player_state.current_score);
                     text.sections[1].value = get_total_score_text(player_state.total_score);

@@ -20,12 +20,20 @@ pub struct GameTextures {
     // score: Handle<>
 }
 
-#[derive(Resource)]
-pub struct EnemyCount(pub u32);
+#[derive(Clone, Copy, PartialEq)]
+pub enum GameLevel {
+    Basic,
+    Middle,
+    Strong,
+    Powerful,
+    Invincible,
+}
 
 #[derive(Resource)]
-struct EnemyState {
+pub struct EnemyState {
     pub count: u32,
+    pub level: GameLevel,
+    pub level_count: u32,
     pub velocity: f32,
 }
 
@@ -38,14 +46,6 @@ pub struct PlayerState {
     pub current_score: u32,
     pub total_score: u32,
     pub lives: u32,
-}
-
-pub enum GameLevel {
-    Basic,
-    Middle,
-    Strong,
-    Powerful,
-    Invincible,
 }
 
 impl Default for PlayerState {
@@ -127,5 +127,51 @@ impl PlayerState {
 
     pub fn game_over(&self) -> bool {
         self.lives <= 0
+    }
+}
+
+impl Default for EnemyState {
+    fn default() -> Self {
+        Self {
+            count: 0,
+            level: GameLevel::Basic,
+            level_count: 2,
+            velocity: -0.6,
+        }
+    }
+}
+
+impl EnemyState {
+    pub fn update(&mut self, level: GameLevel) {
+        if self.level == level {
+            return;
+        }
+        match level {
+            GameLevel::Basic => {
+                self.level = GameLevel::Basic;
+                self.level_count = 2;
+                self.velocity = -0.6;
+            }
+            GameLevel::Middle => {
+                self.level = GameLevel::Middle;
+                self.level_count = 3;
+                self.velocity = -0.7;
+            }
+            GameLevel::Strong => {
+                self.level = GameLevel::Strong;
+                self.level_count = 4;
+                self.velocity = -0.8;
+            }
+            GameLevel::Powerful => {
+                self.level = GameLevel::Powerful;
+                self.level_count = 5;
+                self.velocity = -1.;
+            }
+            GameLevel::Invincible => {
+                self.level = GameLevel::Invincible;
+                self.level_count = 6;
+                self.velocity = -1.2;
+            }
+        }
     }
 }
