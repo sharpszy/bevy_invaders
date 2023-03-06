@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 use rand::{thread_rng, Rng};
 
-use crate::{WinSize, BASE_SPEED, FORMATION_MEMBERS_MAX};
+use crate::{
+    consts::FORMATION_MEMBERS_MAX,
+    consts::{self},
+    WinSize,
+};
 
 /// Componet - Enemy Formation (per enemy)
 #[derive(Clone, Component)]
@@ -54,7 +58,7 @@ impl FormationMaker {
                 let angle = (y - pivot.1).atan2(x - pivot.0);
 
                 // speed (fixed for now)
-                let speed = BASE_SPEED;
+                let speed = consts::BASE_SPEED;
 
                 let formation = Formation {
                     start,

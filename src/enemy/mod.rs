@@ -5,8 +5,8 @@ use rand::{thread_rng, Rng};
 
 use crate::{
     components::{Enemy, FromEnemy, Laser, Movable, SpriteSize, Velocity},
-    EnemyCount, GameTextures, WinSize, ENEMY_LASER_SIZE, ENEMY_MAX, ENEMY_SIZE, SPRITE_SCALE,
-    TIME_STEP,
+    consts::{self, ENEMY_MAX},
+    entity::{EnemyCount, GameTextures, WinSize},
 };
 
 use self::formation::{Formation, FormationMaker};
@@ -57,7 +57,7 @@ fn enemy_spawn_system(
                 texture: game_textures.enemy.clone(),
                 transform: Transform {
                     translation: Vec3::new(x, y, 10.),
-                    scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
+                    scale: Vec3::new(consts::SPRITE_SCALE, consts::SPRITE_SCALE, 1.),
                     rotation: Quat::from_rotation_x(PI),
                     ..Default::default()
                 },
@@ -65,7 +65,7 @@ fn enemy_spawn_system(
             })
             .insert(Enemy)
             .insert(formation)
-            .insert(SpriteSize::from(ENEMY_SIZE));
+            .insert(SpriteSize::from(consts::ENEMY_SIZE));
 
         enemy_count.0 += 1;
     }
@@ -84,13 +84,13 @@ fn enemy_fire_system(
                 texture: game_textures.enemy_laser.clone(),
                 transform: Transform {
                     translation: Vec3::new(x, y - 15., 0.),
-                    scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
+                    scale: Vec3::new(consts::SPRITE_SCALE, consts::SPRITE_SCALE, 1.),
                     ..Default::default()
                 },
                 ..Default::default()
             })
             .insert(Laser)
-            .insert(SpriteSize::from(ENEMY_LASER_SIZE))
+            .insert(SpriteSize::from(consts::ENEMY_LASER_SIZE))
             .insert(FromEnemy)
             .insert(Movable { auto_despawn: true })
             .insert(Velocity { x: 0., y: -1. });
@@ -103,7 +103,7 @@ fn enemy_movement_system(mut query: Query<(&mut Transform, &mut Formation), With
         let (x_org, y_org) = (transform.translation.x, transform.translation.y);
 
         // max distance
-        let max_distance = TIME_STEP * formation.speed;
+        let max_distance = consts::TIME_STEP * formation.speed;
 
         // fixeture (hardcode for now)
         let dir: f32 = if formation.start.0 < 0. { 1. } else { -1. }; // -1 for counter clockwise, -1 clockwise
@@ -112,7 +112,7 @@ fn enemy_movement_system(mut query: Query<(&mut Transform, &mut Formation), With
 
         // compute next angle (based on time for now)
         let angle = formation.angle
-            + dir * formation.speed * TIME_STEP / (x_radius.min(y_radius) * PI / 2.);
+            + dir * formation.speed * consts::TIME_STEP / (x_radius.min(y_radius) * PI / 2.);
         let x_dst = x_radius * angle.cos() + x_pivot;
         let y_dst = y_radius * angle.sin() + y_pivot;
 

@@ -3,10 +3,10 @@ use rand::{thread_rng, Rng};
 
 use crate::{
     components::{FromPlayer, Laser, Movable, Player, ScoreText, SpriteSize, Velocity},
+    consts::{self, PLAYER_RESPAWN_DELAY},
     entity::GameLevel,
     text::get_current_score_text,
-    GameTextures, PlayerState, WinSize, PLAYER_LASER_SIZE, PLAYER_RESPAWN_DELAY, PLAYER_SIZE,
-    SPRITE_SCALE,
+    GameTextures, PlayerState, WinSize,
 };
 
 pub struct PlayerPlugin;
@@ -52,16 +52,20 @@ fn player_spawn_system(
                 transform: Transform {
                     translation: Vec3::new(
                         0.,
-                        bottom + PLAYER_SIZE.1 / 2. * SPRITE_SCALE + 5.,
+                        bottom + consts::PLAYER_SIZE.1 / 2. * consts::SPRITE_SCALE + 5.,
                         10.,
                     ),
-                    scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, SPRITE_SCALE),
+                    scale: Vec3::new(
+                        consts::SPRITE_SCALE,
+                        consts::SPRITE_SCALE,
+                        consts::SPRITE_SCALE,
+                    ),
                     ..Default::default()
                 },
                 ..Default::default()
             })
             .insert(Player)
-            .insert(SpriteSize::from(PLAYER_SIZE))
+            .insert(SpriteSize::from(consts::PLAYER_SIZE))
             .insert(Movable {
                 auto_despawn: false,
             })
@@ -84,7 +88,7 @@ fn player_fire_system(
     if let Ok(player_tf) = query.get_single() {
         if kb.pressed(KeyCode::Space) {
             let (x, y) = (player_tf.translation.x, player_tf.translation.y);
-            let mut x_offset = PLAYER_SIZE.0 / 2. * SPRITE_SCALE - 5.;
+            let mut x_offset = consts::PLAYER_SIZE.0 / 2. * consts::SPRITE_SCALE - 5.;
 
             let mut spawn_laser = |x_offset: f32| {
                 commands
@@ -92,14 +96,14 @@ fn player_fire_system(
                         texture: game_textures.palyer_laser.clone(),
                         transform: Transform {
                             translation: Vec3::new(x + x_offset, y + 15., 0.),
-                            scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
+                            scale: Vec3::new(consts::SPRITE_SCALE, consts::SPRITE_SCALE, 1.),
                             ..Default::default()
                         },
                         ..Default::default()
                     })
                     .insert(Laser)
                     .insert(FromPlayer)
-                    .insert(SpriteSize::from(PLAYER_LASER_SIZE))
+                    .insert(SpriteSize::from(consts::PLAYER_LASER_SIZE))
                     .insert(Movable { auto_despawn: true })
                     .insert(Velocity { x: 0., y: 1. });
             };

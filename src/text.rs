@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{LifeText, ScoreText},
-    PLAYER_MAX_LIVES,
+    consts::{self},
 };
 
 pub struct TextPlugin;
@@ -65,7 +65,7 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
     commands
         .spawn(
             TextBundle::from_sections([TextSection::new(
-                get_lives_text(PLAYER_MAX_LIVES),
+                get_lives_text(consts::PLAYER_MAX_LIVES),
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
                     font_size: 20.,

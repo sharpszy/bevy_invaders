@@ -1,4 +1,4 @@
-use std::{collections::HashSet, time::Duration};
+use std::collections::HashSet;
 
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
@@ -14,44 +14,12 @@ use text::{get_current_score_text, get_lives_text, TextPlugin};
 use crate::text::get_total_score_text;
 
 mod components;
+mod consts;
 mod enemy;
 mod entity;
 mod player;
 mod text;
 mod tools;
-
-// region: --- Asset Constants
-
-const PLAYER_SPRITE: &str = "player_a_01.png";
-const PLAYER_SIZE: (f32, f32) = (144., 75.);
-const PLAYER_LASER_SPRITE: &str = "laser_a_01.png";
-const PLAYER_LASER_SIZE: (f32, f32) = (9., 54.);
-
-const ENEMY_SPRITE: &str = "enemy_a_01.png";
-const ENEMY_SIZE: (f32, f32) = (144., 75.);
-const ENEMY_LASER_SPRITE: &str = "laser_b_01.png";
-const ENEMY_LASER_SIZE: (f32, f32) = (17., 55.);
-
-const EXPLOSION_SHEET: &str = "explo_a_sheet.png";
-const EXPLOSION_LEN: usize = 16;
-
-const SPRITE_SCALE: f32 = 0.5;
-
-// endregion: --- Asset Constatns
-
-// region: --- Game Constants
-
-const TIME_STEP: f32 = 1. / 60.;
-const BASE_SPEED: f32 = 500.;
-
-const PLAYER_RESPAWN_DELAY: f64 = 2.;
-const PLAYER_MAX_LIVES: u32 = 5;
-const PLAYER_INVINCIBLE_DURATION: Duration = Duration::from_secs(3); // 玩家无敌持续时间
-
-const ENEMY_MAX: u32 = 4;
-const FORMATION_MEMBERS_MAX: u32 = 2;
-
-// endregion: --- Game Constatns
 
 fn main() {
     App::new()
@@ -103,17 +71,17 @@ fn setup_system(
     commands.insert_resource(win_size);
 
     // create explosion texture altas
-    let texture_handle = asset_server.load(EXPLOSION_SHEET);
+    let texture_handle = asset_server.load(consts::EXPLOSION_SHEET);
     let texture_atlas =
         TextureAtlas::from_grid(texture_handle, Vec2::new(64., 64.), 4, 4, None, None);
     let explosion = texture_atlases.add(texture_atlas);
 
     // add GameTextures resource
     let game_textures = GameTextures {
-        player: asset_server.load(PLAYER_SPRITE),
-        palyer_laser: asset_server.load(PLAYER_LASER_SPRITE),
-        enemy: asset_server.load(ENEMY_SPRITE),
-        enemy_laser: asset_server.load(ENEMY_LASER_SPRITE),
+        player: asset_server.load(consts::PLAYER_SPRITE),
+        palyer_laser: asset_server.load(consts::PLAYER_LASER_SPRITE),
+        enemy: asset_server.load(consts::ENEMY_SPRITE),
+        enemy_laser: asset_server.load(consts::ENEMY_LASER_SPRITE),
         explosion,
     };
     commands.insert_resource(game_textures);
@@ -138,8 +106,8 @@ fn movable_system(
 ) {
     for (entity, velocity, mut transform, movable) in query.iter_mut() {
         let translation = &mut transform.translation;
-        translation.x += velocity.x * TIME_STEP * BASE_SPEED;
-        translation.y += velocity.y * TIME_STEP * BASE_SPEED;
+        translation.x += velocity.x * consts::TIME_STEP * consts::BASE_SPEED;
+        translation.y += velocity.y * consts::TIME_STEP * consts::BASE_SPEED;
 
         if movable.auto_despawn {
             const MARGIN: f32 = 200.;
@@ -295,7 +263,7 @@ fn explosion_animation_system(
         timer.0.tick(time.delta());
         if timer.0.finished() {
             sprite.index += 1; // move to next sprite cell
-            if sprite.index >= EXPLOSION_LEN {
+            if sprite.index >= consts::EXPLOSION_LEN {
                 commands.entity(entity).despawn();
             }
         }

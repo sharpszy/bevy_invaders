@@ -2,7 +2,7 @@ use std::time::SystemTime;
 
 use bevy::prelude::*;
 
-use crate::{PLAYER_INVINCIBLE_DURATION, PLAYER_MAX_LIVES};
+use crate::consts::{self, PLAYER_MAX_LIVES};
 
 #[derive(Resource)]
 pub struct WinSize {
@@ -89,7 +89,7 @@ impl PlayerState {
             if SystemTime::now()
                 .duration_since(self.born)
                 .unwrap()
-                .gt(&PLAYER_INVINCIBLE_DURATION)
+                .gt(&consts::PLAYER_INVINCIBLE_DURATION)
             {
                 self.is_invincible = false;
             }
