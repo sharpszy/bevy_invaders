@@ -1,6 +1,11 @@
 use std::collections::HashSet;
 
-use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
+use bevy::{
+    math::Vec3Swizzles,
+    prelude::*,
+    sprite::collide_aabb::collide,
+    window::{PrimaryWindow, WindowResized, WindowResolution},
+};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
     CurrentScoreText, Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer,
@@ -28,13 +33,12 @@ fn main() {
                 // package asset files to binary
                 .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
                 .set(WindowPlugin {
-                    window: WindowDescriptor {
+                    primary_window: Some(Window {
                         title: "Bevy Indavers!".to_string(),
-                        width: 598.0,
-                        height: 676.0,
+                        resolution: WindowResolution::new(598.0, 676.0),
                         resizable: false,
                         ..Default::default()
-                    },
+                    }),
                     ..Default::default()
                 }),
         )
@@ -56,13 +60,13 @@ fn setup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-    mut windows: ResMut<Windows>,
+    mut primary_query: Query<&mut Window, With<PrimaryWindow>>,
 ) {
     // camera
     commands.spawn(Camera2dBundle::default());
 
     // capture window size
-    let window = windows.get_primary_mut().unwrap();
+    let window = primary_query.get_single_mut().unwrap();
     let (win_w, win_h) = (window.width(), window.height());
 
     // add WinSize resource

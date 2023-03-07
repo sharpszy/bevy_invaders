@@ -1,4 +1,6 @@
-use bevy::{ecs::schedule::ShouldRun, prelude::*, time::FixedTimestep};
+use std::time::Duration;
+
+use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::{thread_rng, Rng};
 
 use crate::{
@@ -13,16 +15,8 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(PlayerState::default())
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(FixedTimestep::step(0.5))
-                    .with_system(player_spawn_system),
-            )
-            .add_system_set(
-                SystemSet::new()
-                    .with_run_criteria(player_fire_criteria)
-                    .with_system(player_fire_system),
-            )
+            .add_system(player_spawn_system.run_if(on_timer(Duration::from_millis(500))))
+            .add_system(player_fire_system.run_if(player_fire_criteria))
             .add_system(player_keyboard_event_system);
     }
 }
@@ -143,11 +137,11 @@ fn player_fire_system(
     }
 }
 
-fn player_fire_criteria() -> ShouldRun {
+fn player_fire_criteria() -> bool {
     if thread_rng().gen_bool(10. / 60.) {
-        ShouldRun::Yes
+        true
     } else {
-        ShouldRun::No
+        false
     }
 }
 

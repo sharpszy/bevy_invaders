@@ -77,7 +77,7 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     color: Color::GOLD,
                 },
             )])
-            .with_text_alignment(TextAlignment::TOP_CENTER)
+            .with_text_alignment(TextAlignment::Center)
             .with_style(Style {
                 size: Size {
                     width: Val::Px(100.),
