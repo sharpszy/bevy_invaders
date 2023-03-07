@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    components::{GameOverText, LifeText, ScoreText},
+    components::{CurrentScoreText, GameOverText, LifeText, TotalScoreText},
     consts::{self},
 };
 
@@ -17,29 +17,11 @@ impl Plugin for TextPlugin {
 fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer>) {
     // add score text resource
     commands
-        .spawn(
-            TextBundle::from_sections([
-                TextSection::new(
-                    get_current_score_text(0),
-                    TextStyle {
-                        font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                        font_size: 18.,
-                        color: Color::WHITE,
-                    },
-                ),
-                TextSection::new(
-                    get_total_score_text(0),
-                    TextStyle {
-                        font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                        font_size: 22.,
-                        color: Color::ORANGE_RED,
-                    },
-                ),
-            ])
-            .with_text_alignment(TextAlignment::TOP_CENTER)
-            .with_style(Style {
-                display: Display::Flex,
-                position_type: PositionType::Absolute,
+        .spawn(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Auto, Val::Auto),
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::FlexStart,
                 flex_wrap: FlexWrap::Wrap,
                 position: UiRect {
                     top: Val::Px(5.0),
@@ -47,13 +29,35 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     ..default()
                 },
                 ..default()
-            }),
-        )
-        .insert(ScoreText);
+            },
+            ..default()
+        })
+        .with_children(|builder| {
+            builder
+                .spawn(TextBundle::from_sections([TextSection::new(
+                    get_current_score_text(0),
+                    TextStyle {
+                        font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                        font_size: 18.,
+                        color: Color::GREEN,
+                    },
+                )]))
+                .insert(CurrentScoreText);
+            builder
+                .spawn(TextBundle::from_sections([TextSection::new(
+                    get_total_score_text(0),
+                    TextStyle {
+                        font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                        font_size: 18.,
+                        color: Color::ORANGE_RED,
+                    },
+                )]))
+                .insert(TotalScoreText);
+        });
 }
 
 pub fn get_current_score_text(num: u32) -> String {
-    format!("本轮歼灭敌机数: {}", num)
+    format!("当前歼灭敌机数: {}", num)
 }
 
 pub fn get_total_score_text(num: u32) -> String {
@@ -81,7 +85,7 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                 position_type: PositionType::Absolute,
                 flex_wrap: FlexWrap::Wrap,
                 flex_direction: FlexDirection::Column,
-                align_items: AlignItems::FlexStart,
+                align_items: AlignItems::FlexEnd,
                 position: UiRect {
                     top: Val::Px(5.0),
                     right: Val::Px(15.0),

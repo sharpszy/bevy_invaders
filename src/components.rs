@@ -1,4 +1,6 @@
-use bevy::prelude::{Component, Timer, Vec2, Vec3};
+use bevy::prelude::*;
+
+use crate::text::{get_current_score_text, get_lives_text, get_total_score_text};
 
 // region: --- Common Components
 
@@ -26,10 +28,36 @@ impl From<(f32, f32)> for SpriteSize {
 }
 
 #[derive(Component)]
-pub struct ScoreText;
+pub struct TotalScoreText;
+
+impl TotalScoreText {
+    pub fn update(mut query: Query<&mut Text, With<TotalScoreText>>, score: u32) {
+        for mut text in &mut query {
+            text.sections[0].value = get_total_score_text(score);
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct CurrentScoreText;
+impl CurrentScoreText {
+    pub fn update(mut query: Query<&mut Text, With<CurrentScoreText>>, score: u32) {
+        for mut text in &mut query {
+            text.sections[0].value = get_current_score_text(score);
+        }
+    }
+}
 
 #[derive(Component)]
 pub struct LifeText;
+
+impl LifeText {
+    pub fn update(mut query: Query<&mut Text, With<LifeText>>, lives: u32) {
+        for mut text in &mut query {
+            text.sections[0].value = get_lives_text(lives);
+        }
+    }
+}
 
 #[derive(Component)]
 pub struct GameOverText;

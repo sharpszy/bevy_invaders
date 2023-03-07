@@ -3,15 +3,13 @@ use std::collections::HashSet;
 use bevy::{math::Vec3Swizzles, prelude::*, sprite::collide_aabb::collide, window::WindowResized};
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
-    Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer, GameOverText, Laser,
-    LifeText, Movable, Player, ScoreText, SpriteSize, Velocity,
+    CurrentScoreText, Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer,
+    GameOverText, Laser, LifeText, Movable, Player, SpriteSize, TotalScoreText, Velocity,
 };
 use enemy::EnemyPlugin;
 use entity::{EnemyState, GameState, GameTextures, PlayerState, WinSize};
 use player::PlayerPlugin;
-use text::{get_current_score_text, get_lives_text, TextPlugin};
-
-use crate::text::get_total_score_text;
+use text::TextPlugin;
 
 mod components;
 mod consts;
@@ -132,7 +130,10 @@ fn player_laser_hit_enemy_system(
     mut player_state: ResMut<PlayerState>,
     laser_query: Query<(Entity, &Transform, &SpriteSize), (With<Laser>, With<FromPlayer>)>,
     enemy_query: Query<(Entity, &Transform, &SpriteSize), With<Enemy>>,
-    mut text_query: Query<&mut Text, With<ScoreText>>,
+    mut text_set: ParamSet<(
+        Query<&mut Text, With<CurrentScoreText>>,
+        Query<&mut Text, With<TotalScoreText>>,
+    )>,
 ) {
     let mut despawned_entities: HashSet<Entity> = HashSet::new();
 
@@ -182,11 +183,9 @@ fn player_laser_hit_enemy_system(
                 // udpate enemy state
                 enemy_state.update(player_state.get_game_level());
 
-                // update text
-                for mut text in &mut text_query {
-                    text.sections[0].value = get_current_score_text(player_state.current_score);
-                    text.sections[1].value = get_total_score_text(player_state.total_score);
-                }
+                // update score text
+                CurrentScoreText::update(text_set.p0(), player_state.current_score);
+                TotalScoreText::update(text_set.p1(), player_state.total_score);
             }
         }
     }
@@ -199,7 +198,7 @@ fn enemy_laser_hit_player_system(
     time: Res<Time>,
     laser_query: Query<(Entity, &Transform, &SpriteSize), (With<Laser>, With<FromEnemy>)>,
     player_query: Query<(Entity, &Transform, &SpriteSize), With<Player>>,
-    mut text_query: Query<&mut Text, With<LifeText>>,
+    text_query: Query<&mut Text, With<LifeText>>,
 ) {
     if let Ok((player_entity, player_tf, player_size)) = player_query.get_single() {
         let player_scale = player_tf.scale.xy();
@@ -233,9 +232,7 @@ fn enemy_laser_hit_player_system(
                 commands.spawn(ExplosionToSpawn(player_tf.translation.clone()));
 
                 // update life text
-                for mut text in &mut text_query {
-                    text.sections[0].value = get_lives_text(player_state.lives);
-                }
+                LifeText::update(text_query, player_state.lives);
 
                 break;
             }
@@ -291,7 +288,8 @@ fn game_over_system(
     mut text_set: ParamSet<(
         Query<(Entity, &Text), With<GameOverText>>,
         Query<&mut Text, With<LifeText>>,
-        Query<&mut Text, With<ScoreText>>,
+        Query<&mut Text, With<CurrentScoreText>>,
+        Query<&mut Text, With<TotalScoreText>>,
     )>,
 ) {
     if !game_state.is_over {
@@ -312,16 +310,10 @@ fn game_over_system(
         player_state.replay();
 
         // update life text
-        let mut life_text = text_set.p1();
-        for mut text in &mut life_text {
-            text.sections[0].value = get_lives_text(player_state.lives);
-        }
+        LifeText::update(text_set.p1(), player_state.lives);
 
-        // update text
-        let mut score_text = text_set.p2();
-        for mut text in &mut score_text {
-            text.sections[0].value = get_current_score_text(player_state.current_score);
-            text.sections[1].value = get_total_score_text(player_state.total_score);
-        }
+        // update score text
+        CurrentScoreText::update(text_set.p2(), player_state.current_score);
+        TotalScoreText::update(text_set.p3(), player_state.total_score);
     }
 }
