@@ -282,11 +282,12 @@ fn explosion_animation_system(
 fn game_over_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    win_size: Res<WinSize>,
     kb: Res<Input<KeyCode>>,
     mut game_state: ResMut<GameState>,
     mut player_state: ResMut<PlayerState>,
     mut text_set: ParamSet<(
-        Query<(Entity, &Text), With<GameOverText>>,
+        Query<Entity, With<GameOverText>>,
         Query<&mut Text, With<LifeText>>,
         Query<&mut Text, With<CurrentScoreText>>,
         Query<&mut Text, With<TotalScoreText>>,
@@ -297,13 +298,13 @@ fn game_over_system(
     }
     if !game_state.show {
         game_state.show = true;
-        commands.spawn(text::game_over_text_bundle(asset_server));
+        text::game_over_text_bundle(&mut commands, asset_server, win_size);
     }
 
     if kb.just_pressed(KeyCode::P) {
         // despawn game over text
         let game_over_text = text_set.p0();
-        for (entity, _) in game_over_text.iter() {
+        for entity in game_over_text.iter() {
             commands.entity(entity).despawn();
         }
         game_state.reset();

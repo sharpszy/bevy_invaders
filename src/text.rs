@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::{
     components::{CurrentScoreText, GameOverText, LifeText, TotalScoreText},
     consts::{self},
+    entity::WinSize,
 };
 
 pub struct TextPlugin;
@@ -101,36 +102,48 @@ pub fn get_lives_text(num: u32) -> String {
     format!("你还有 {} 条命！", num)
 }
 
-pub fn game_over_text_bundle(asset_server: Res<AssetServer>) -> (TextBundle, GameOverText) {
-    (
-        TextBundle::from_sections([
-            TextSection::new(
+pub fn game_over_text_bundle(
+    commands: &mut Commands,
+    asset_server: Res<AssetServer>,
+    win_size: Res<WinSize>,
+) {
+    let x = win_size.w / 2. - 48.;
+    let y = win_size.h / 2. - 100.;
+    commands
+        .spawn(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Px(100.), Val::Auto),
+                position_type: PositionType::Absolute,
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                flex_wrap: FlexWrap::Wrap,
+                position: UiRect {
+                    top: Val::Px(y),
+                    left: Val::Px(x),
+                    ..default()
+                },
+                ..default()
+            },
+            background_color: BackgroundColor(Color::WHITE),
+            ..default()
+        })
+        .with_children(|builder| {
+            builder.spawn(TextBundle::from_sections([TextSection::new(
                 "游戏结束",
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
                     font_size: 28.,
                     color: Color::RED,
                 },
-            ),
-            TextSection::new(
+            )]));
+            builder.spawn(TextBundle::from_sections([TextSection::new(
                 "按[P]继续",
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
                     font_size: 22.,
                     color: Color::ORANGE_RED,
                 },
-            ),
-        ])
-        .with_text_alignment(TextAlignment::TOP_CENTER)
-        .with_style(Style {
-            size: Size {
-                width: Val::Px(90.),
-                ..default()
-            },
-            border: UiRect::new(Val::Px(10.), Val::Px(10.), Val::Px(10.), Val::Px(10.)),
-            flex_direction: FlexDirection::Column,
-            ..default()
-        }),
-        GameOverText,
-    )
+            )]));
+        })
+        .insert(GameOverText);
 }
