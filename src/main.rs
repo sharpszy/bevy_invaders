@@ -305,7 +305,8 @@ fn game_over_system(
         // despawn game over text
         let game_over_text = text_set.p0();
         for entity in game_over_text.iter() {
-            commands.entity(entity).despawn();
+            // despawn_recursive 消除警告
+            commands.entity(entity).despawn_recursive();
         }
         game_state.reset();
         player_state.replay();
