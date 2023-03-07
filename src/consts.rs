@@ -1,5 +1,9 @@
 use std::time::Duration;
 
+// region: --- Style
+pub const COMMON_FONT_SIZE: f32 = 18.;
+// endregion: -- Style
+
 // region: --- PLAYER
 pub(crate) const PLAYER_SPRITE: &str = "player_a_01.png";
 pub(crate) const PLAYER_SIZE: (f32, f32) = (144., 75.);

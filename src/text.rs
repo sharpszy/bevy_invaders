@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{CurrentScoreText, GameOverText, LifeText, TotalScoreText},
-    consts::{self},
+    consts::{self, COMMON_FONT_SIZE},
     entity::WinSize,
 };
 
@@ -39,7 +39,7 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     get_current_score_text(0),
                     TextStyle {
                         font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                        font_size: 18.,
+                        font_size: COMMON_FONT_SIZE,
                         color: Color::GREEN,
                     },
                 )]))
@@ -49,7 +49,7 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     get_total_score_text(0),
                     TextStyle {
                         font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                        font_size: 18.,
+                        font_size: COMMON_FONT_SIZE,
                         color: Color::ORANGE_RED,
                     },
                 )]))
@@ -73,7 +73,7 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                 get_lives_text(consts::PLAYER_MAX_LIVES),
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                    font_size: 20.,
+                    font_size: COMMON_FONT_SIZE,
                     color: Color::GOLD,
                 },
             )])
@@ -131,15 +131,15 @@ pub fn game_over_text_bundle(
             builder.spawn(TextBundle::from_sections([TextSection::new(
                 "游戏结束",
                 TextStyle {
-                    font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                    font_size: 28.,
+                    font: asset_server.load("fonts/NotoSansSC-Medium.otf"),
+                    font_size: 32.,
                     color: Color::RED,
                 },
             )]));
             builder.spawn(TextBundle::from_sections([TextSection::new(
                 "按[P]继续",
                 TextStyle {
-                    font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                    font: asset_server.load("fonts/NotoSansSC-Medium.otf"),
                     font_size: 22.,
                     color: Color::ORANGE_RED,
                 },
