@@ -73,7 +73,7 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     TextStyle {
                         font: asset_server.load("fonts/NotoSansSC-Light.otf"),
                         font_size: 24.,
-                        color: Color::ORANGE_RED,
+                        color: Color::YELLOW_GREEN,
                     },
                 )]))
                 .insert(HistoryScoreText);
