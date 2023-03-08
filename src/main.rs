@@ -309,8 +309,8 @@ fn game_over_system(
     }
     if !game_state.show {
         game_state.show = true;
+        text::game_over_text_spawn(&mut commands, asset_server, win_size);
         HistoryScoreText::update(text_set.p4(), player_state.total_score);
-        text::game_over_text_bundle(&mut commands, asset_server, win_size);
     }
 
     if kb.just_pressed(KeyCode::P) {

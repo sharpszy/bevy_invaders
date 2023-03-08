@@ -149,7 +149,7 @@ pub fn get_lives_text(num: u32) -> String {
     format!("你还有 {} 条命！", num)
 }
 
-pub fn game_over_text_bundle(
+pub fn game_over_text_spawn(
     commands: &mut Commands,
     asset_server: Res<AssetServer>,
     win_size: Res<WinSize>,
