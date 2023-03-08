@@ -1,5 +1,6 @@
 run:
-	cargo run --release --features bevy/dynamic
+	#cargo run --release --features bevy/dynamic
+	cargo run --release
 
 build:
 	cargo build --release
