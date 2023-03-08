@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::text::{get_current_score_text, get_lives_text, get_total_score_text};
+use crate::text::{get_current_score_text, get_history_text, get_lives_text, get_total_score_text};
 
 // region: --- Common Components
 
@@ -44,6 +44,16 @@ impl CurrentScoreText {
     pub fn update(mut query: Query<&mut Text, With<CurrentScoreText>>, score: u32) {
         for mut text in &mut query {
             text.sections[0].value = get_current_score_text(score);
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct HistoryScoreText;
+impl HistoryScoreText {
+    pub fn update(mut query: Query<&mut Text, With<HistoryScoreText>>, score: u32) {
+        for mut text in &mut query {
+            text.sections[0].value = get_history_text(score);
         }
     }
 }

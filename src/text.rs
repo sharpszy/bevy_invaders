@@ -1,8 +1,10 @@
+use std::sync::Mutex;
+
 use bevy::prelude::*;
 
 use crate::{
-    components::{CurrentScoreText, GameOverText, LifeText, TotalScoreText},
-    consts::{self, COMMON_FONT_SIZE},
+    components::{CurrentScoreText, GameOverText, HistoryScoreText, LifeText, TotalScoreText},
+    consts::{self, COMMON_FONT_SIZE, HISTORY_LEN},
     entity::WinSize,
 };
 
@@ -13,6 +15,12 @@ impl Plugin for TextPlugin {
         app.add_startup_system(score_text_spawn_system)
             .add_startup_system(lives_text_spawn_system);
     }
+}
+
+pub struct History([u32; HISTORY_LEN]);
+
+lazy_static! {
+    static ref HISTORY_SCORE: Mutex<History> = Mutex::new(History([0; HISTORY_LEN]));
 }
 
 fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -34,6 +42,7 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
             ..default()
         })
         .with_children(|builder| {
+            // 当前分数
             builder
                 .spawn(TextBundle::from_sections([TextSection::new(
                     get_current_score_text(0),
@@ -44,6 +53,8 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     },
                 )]))
                 .insert(CurrentScoreText);
+
+            // 总分
             builder
                 .spawn(TextBundle::from_sections([TextSection::new(
                     get_total_score_text(0),
@@ -54,6 +65,18 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     },
                 )]))
                 .insert(TotalScoreText);
+
+            // 历史记录
+            builder
+                .spawn(TextBundle::from_sections([TextSection::new(
+                    get_history_text(0),
+                    TextStyle {
+                        font: asset_server.load("fonts/NotoSansSC-Light.otf"),
+                        font_size: 24.,
+                        color: Color::ORANGE_RED,
+                    },
+                )]))
+                .insert(HistoryScoreText);
         });
 }
 
@@ -63,6 +86,30 @@ pub fn get_current_score_text(num: u32) -> String {
 
 pub fn get_total_score_text(num: u32) -> String {
     format!("总共歼灭敌机数: {}", num)
+}
+
+pub fn get_history_text(num: u32) -> String {
+    let mut history = HISTORY_SCORE.lock().unwrap();
+    let mut last_idx = history.0.len() - 1;
+    if num > history.0[last_idx] {
+        let mut idx = 0;
+        for (i, n) in history.0.iter_mut().enumerate() {
+            if *n < num {
+                idx = i;
+                while last_idx > i {
+                    history.0[last_idx] = history.0[last_idx - 1];
+                    last_idx -= 1;
+                }
+                break;
+            }
+        }
+        history.0[idx] = num;
+    }
+    let mut txt = "历史最高记录".to_string();
+    for (i, num) in history.0.iter().enumerate() {
+        txt.push_str(format!("\n#{}: {}", i + 1, *num).as_str());
+    }
+    txt
 }
 
 fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer>) {

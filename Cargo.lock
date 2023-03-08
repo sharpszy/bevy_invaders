@@ -593,6 +593,7 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy_embedded_assets",
+ "lazy_static",
  "rand",
 ]
 

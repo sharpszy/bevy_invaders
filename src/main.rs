@@ -10,7 +10,8 @@ use bevy::{
 use bevy_embedded_assets::EmbeddedAssetPlugin;
 use components::{
     CurrentScoreText, Enemy, Explosion, ExplosionTimer, ExplosionToSpawn, FromEnemy, FromPlayer,
-    GameOverText, Laser, LifeText, Movable, Player, SpriteSize, TotalScoreText, Velocity,
+    GameOverText, HistoryScoreText, Laser, LifeText, Movable, Player, SpriteSize, TotalScoreText,
+    Velocity,
 };
 use enemy::EnemyPlugin;
 use entity::{EnemyState, GameState, GameTextures, PlayerState, WinSize};
@@ -24,6 +25,9 @@ mod entity;
 mod player;
 mod text;
 mod tools;
+
+#[macro_use]
+extern crate lazy_static;
 
 fn main() {
     App::new()
@@ -297,6 +301,7 @@ fn game_over_system(
         Query<&mut Text, With<LifeText>>,
         Query<&mut Text, With<CurrentScoreText>>,
         Query<&mut Text, With<TotalScoreText>>,
+        Query<&mut Text, With<HistoryScoreText>>,
     )>,
 ) {
     if !game_state.is_over {
@@ -304,6 +309,7 @@ fn game_over_system(
     }
     if !game_state.show {
         game_state.show = true;
+        HistoryScoreText::update(text_set.p4(), player_state.total_score);
         text::game_over_text_bundle(&mut commands, asset_server, win_size);
     }
 

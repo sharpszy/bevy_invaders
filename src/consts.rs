@@ -28,4 +28,5 @@ pub(crate) const SPRITE_SCALE: f32 = 0.5;
 pub(crate) const TIME_STEP: f32 = 1. / 60.;
 pub(crate) const BASE_SPEED: f32 = 500.;
 pub(crate) const FORMATION_MEMBERS_MAX: u32 = 2;
+pub(crate) const HISTORY_LEN: usize = 5;
 // endregion: --- GAME
