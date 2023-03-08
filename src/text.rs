@@ -137,7 +137,7 @@ pub fn game_over_text_bundle(
                 },
             )]));
             builder.spawn(TextBundle::from_sections([TextSection::new(
-                "按[P]继续",
+                "按[P]继续\n按[Esc]退出",
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Medium.otf"),
                     font_size: 22.,

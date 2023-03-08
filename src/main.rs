@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
 use bevy::{
+    app::AppExit,
     math::Vec3Swizzles,
     prelude::*,
     sprite::collide_aabb::collide,
@@ -288,6 +289,7 @@ fn game_over_system(
     asset_server: Res<AssetServer>,
     win_size: Res<WinSize>,
     kb: Res<Input<KeyCode>>,
+    mut exit: EventWriter<AppExit>,
     mut game_state: ResMut<GameState>,
     mut player_state: ResMut<PlayerState>,
     mut text_set: ParamSet<(
@@ -321,5 +323,7 @@ fn game_over_system(
         // update score text
         CurrentScoreText::update(text_set.p2(), player_state.current_score);
         TotalScoreText::update(text_set.p3(), player_state.total_score);
+    } else if kb.just_pressed(KeyCode::Escape) {
+        exit.send(AppExit);
     }
 }

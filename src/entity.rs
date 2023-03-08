@@ -48,7 +48,7 @@ pub struct PlayerState {
     pub on: bool,
     pub last_shot: f64,
     pub born: SystemTime,
-    pub is_invincible: bool,
+    pub invincible: bool,
     pub current_score: u32,
     pub total_score: u32,
     pub lives: u32,
@@ -60,7 +60,7 @@ impl Default for PlayerState {
             on: false,
             last_shot: -1.,
             born: SystemTime::now(),
-            is_invincible: true,
+            invincible: true,
             current_score: 0,
             total_score: 0,
             lives: PLAYER_MAX_LIVES,
@@ -82,7 +82,7 @@ impl PlayerState {
         self.on = true;
         self.last_shot = -1.;
         self.born = SystemTime::now();
-        self.is_invincible = true;
+        self.invincible = true;
         self.current_score = 0;
     }
 
@@ -97,16 +97,16 @@ impl PlayerState {
     }
 
     pub fn hit_to_die(&mut self) -> bool {
-        if self.is_invincible {
+        if self.invincible {
             if SystemTime::now()
                 .duration_since(self.born)
                 .unwrap()
                 .gt(&consts::PLAYER_INVINCIBLE_DURATION)
             {
-                self.is_invincible = false;
+                self.invincible = false;
             }
         }
-        !self.is_invincible
+        !self.invincible
     }
 
     pub fn get_fire_level(&self) -> GameLevel {
