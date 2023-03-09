@@ -140,9 +140,9 @@ impl Default for EnemyState {
 }
 
 impl EnemyState {
-    pub fn update(&mut self, level: GameLevel) {
+    pub fn update(&mut self, level: GameLevel) -> bool {
         if self.level == level {
-            return;
+            return false;
         }
         match level {
             GameLevel::Basic => {
@@ -171,6 +171,7 @@ impl EnemyState {
                 self.velocity = -1.3;
             }
         }
+        true
     }
 }
 

@@ -135,6 +135,8 @@ fn movable_system(
 
 fn player_laser_hit_enemy_system(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
     mut enemy_state: ResMut<EnemyState>,
     mut player_state: ResMut<PlayerState>,
     laser_query: Query<(Entity, &Transform, &SpriteSize), (With<Laser>, With<FromPlayer>)>,
@@ -190,7 +192,11 @@ fn player_laser_hit_enemy_system(
                 player_state.increase_score();
 
                 // udpate enemy state
-                enemy_state.update(player_state.get_game_level());
+                if enemy_state.update(player_state.get_game_level()) {
+                    // play leve upgrade music
+                    let music = asset_server.load(consts::AUDIO_LEVEL_UPGRADE);
+                    audio.play(music);
+                }
 
                 // update score text
                 CurrentScoreText::update(text_set.p0(), player_state.current_score);
@@ -275,11 +281,17 @@ fn explosion_to_spawn_system(
 fn explosion_animation_system(
     mut commands: Commands,
     time: Res<Time>,
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
     mut query: Query<(Entity, &mut ExplosionTimer, &mut TextureAtlasSprite), With<Explosion>>,
 ) {
     for (entity, mut timer, mut sprite) in query.iter_mut() {
         timer.0.tick(time.delta());
         if timer.0.finished() {
+            if sprite.index == 0 {
+                let music = asset_server.load(consts::AUDIO_EXPLOSION);
+                audio.play(music);
+            }
             sprite.index += 1; // move to next sprite cell
             if sprite.index >= consts::EXPLOSION_LEN {
                 commands.entity(entity).despawn();
@@ -292,6 +304,7 @@ fn game_over_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     win_size: Res<WinSize>,
+    audio: Res<Audio>,
     kb: Res<Input<KeyCode>>,
     mut exit: EventWriter<AppExit>,
     mut game_state: ResMut<GameState>,
@@ -309,8 +322,10 @@ fn game_over_system(
     }
     if !game_state.show {
         game_state.show = true;
+        let music = asset_server.load(consts::AUDIO_PLAYER_FAIL);
         text::game_over_text_spawn(&mut commands, asset_server, win_size);
         HistoryScoreText::update(text_set.p4(), player_state.total_score);
+        audio.play(music);
     }
 
     if kb.just_pressed(KeyCode::P) {

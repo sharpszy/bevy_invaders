@@ -31,3 +31,12 @@ pub(crate) const BASE_SPEED: f32 = 500.;
 pub(crate) const FORMATION_MEMBERS_MAX: u32 = 2;
 pub(crate) const HISTORY_LEN: usize = 4;
 // endregion: --- GAME
+
+// region --- AUDIO
+pub(crate) const AUDIO_EXPLOSION: &str = "audio/explosion.wav";
+pub(crate) const AUDIO_LEVEL_UPGRADE: &str = "audio/level-upgrade.wav";
+pub(crate) const AUDIO_PLAYER_FAIL: &str = "audio/player-fail.wav";
+pub(crate) const AUDIO_SHOT_LOW: &str = "audio/shot-low.wav";
+pub(crate) const AUDIO_SHOT_MID: &str = "audio/shot-mid.wav";
+pub(crate) const AUDIO_SHOT_HIGH: &str = "audio/shot-high.wav";
+// endregion --- AUDIO
