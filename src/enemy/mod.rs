@@ -48,7 +48,7 @@ fn enemy_spawn_system(
             .spawn(SpriteBundle {
                 texture: game_textures.enemy.clone(),
                 transform: Transform {
-                    translation: Vec3::new(x, y, 10.),
+                    translation: Vec3::new(x, y, consts::Z_COORDINATE),
                     scale: Vec3::new(consts::SPRITE_SCALE, consts::SPRITE_SCALE, 1.),
                     rotation: Quat::from_rotation_x(PI),
                     ..Default::default()

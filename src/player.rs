@@ -47,7 +47,7 @@ fn player_spawn_system(
                     translation: Vec3::new(
                         0.,
                         bottom + consts::PLAYER_SIZE.1 / 2. * consts::SPRITE_SCALE + 5.,
-                        10.,
+                        consts::Z_COORDINATE,
                     ),
                     scale: Vec3::new(
                         consts::SPRITE_SCALE,

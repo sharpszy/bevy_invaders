@@ -81,11 +81,11 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
 }
 
 pub fn get_current_score_text(num: u32) -> String {
-    format!("当前歼灭敌机数: {}", num)
+    format!("当前歼灭: {}", num)
 }
 
 pub fn get_total_score_text(num: u32) -> String {
-    format!("总共歼灭敌机数: {}", num)
+    format!("总共歼灭: {}", num)
 }
 
 pub fn get_history_text(num: u32) -> String {
@@ -105,7 +105,7 @@ pub fn get_history_text(num: u32) -> String {
         }
         history.0[idx] = num;
     }
-    let mut txt = "历史最高记录".to_string();
+    let mut txt = "历史记录".to_string();
     for (i, num) in history.0.iter().enumerate() {
         txt.push_str(format!("\n#{}: {}", i + 1, *num).as_str());
     }
@@ -127,7 +127,7 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
             .with_text_alignment(TextAlignment::Center)
             .with_style(Style {
                 size: Size {
-                    width: Val::Px(100.),
+                    width: Val::Px(60.),
                     ..default()
                 },
                 position_type: PositionType::Absolute,
@@ -146,7 +146,7 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
 }
 
 pub fn get_lives_text(num: u32) -> String {
-    format!("你还有 {} 条命！", num)
+    format!("生命值: {}", num)
 }
 
 pub fn game_over_text_spawn(
