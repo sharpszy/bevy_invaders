@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use bevy::{
     app::AppExit,
+    audio,
     math::Vec3Swizzles,
     prelude::*,
     sprite::collide_aabb::collide,
@@ -19,6 +20,7 @@ use player::PlayerPlugin;
 use settings::SettingsPlugin;
 use text::TextPlugin;
 
+mod audio_ctrl;
 mod components;
 mod consts;
 mod enemy;
@@ -141,6 +143,7 @@ fn movable_system(
 
 fn player_laser_hit_enemy_system(
     mut commands: Commands,
+    settings: Res<Settings>,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
     mut enemy_state: ResMut<EnemyState>,
@@ -200,8 +203,7 @@ fn player_laser_hit_enemy_system(
                 // udpate enemy state
                 if enemy_state.update(player_state.get_game_level()) {
                     // play leve upgrade music
-                    let music = asset_server.load(consts::AUDIOS_LEVEL_UPGRADE);
-                    audio.play(music);
+                    audio_ctrl::play_leve_upgrade(&settings, &asset_server, &audio);
                 }
 
                 // update score text
@@ -286,6 +288,7 @@ fn explosion_to_spawn_system(
 
 fn explosion_animation_system(
     mut commands: Commands,
+    settings: Res<Settings>,
     time: Res<Time>,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
@@ -294,10 +297,7 @@ fn explosion_animation_system(
     for (entity, mut timer, mut sprite) in query.iter_mut() {
         timer.0.tick(time.delta());
         if timer.0.finished() {
-            if sprite.index == 0 {
-                let music = asset_server.load(consts::AUDIOS_EXPLOSION);
-                audio.play(music);
-            }
+            audio_ctrl::play_explosion(sprite.index, &settings, &asset_server, &audio);
             sprite.index += 1; // move to next sprite cell
             if sprite.index >= consts::EXPLOSION_LEN {
                 commands.entity(entity).despawn();
@@ -308,6 +308,7 @@ fn explosion_animation_system(
 
 fn game_over_system(
     mut commands: Commands,
+    settings: Res<Settings>,
     asset_server: Res<AssetServer>,
     win_size: Res<WinSize>,
     audio: Res<Audio>,
@@ -328,10 +329,9 @@ fn game_over_system(
     }
     if !game_state.show_over {
         game_state.show_over = true;
-        let music = asset_server.load(consts::AUDIOS_PLAYER_FAIL);
-        text::game_over_text_spawn(&mut commands, asset_server, win_size);
+        text::game_over_text_spawn(&mut commands, &asset_server, &win_size);
         HistoryScoreText::update(text_set.p4(), player_state.total_score);
-        audio.play(music);
+        audio_ctrl::play_game_over(&settings, &asset_server, &audio);
     }
 
     if kb.just_pressed(KeyCode::P) {

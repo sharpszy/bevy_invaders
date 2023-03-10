@@ -151,8 +151,8 @@ pub fn get_lives_text(num: u32) -> String {
 
 pub fn game_over_text_spawn(
     commands: &mut Commands,
-    asset_server: Res<AssetServer>,
-    win_size: Res<WinSize>,
+    asset_server: &Res<AssetServer>,
+    win_size: &Res<WinSize>,
 ) {
     let x = win_size.w / 2. - 48.;
     let y = win_size.h / 2. - 100.;

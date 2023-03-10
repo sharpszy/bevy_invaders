@@ -4,9 +4,10 @@ use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::{thread_rng, Rng};
 
 use crate::{
+    audio_ctrl,
     components::{CurrentScoreText, FromPlayer, Laser, Movable, Player, SpriteSize, Velocity},
     consts::{self, PLAYER_RESPAWN_DELAY},
-    entity::{GameLevel, GameState},
+    entity::{GameLevel, GameState, Settings},
     GameTextures, PlayerState, WinSize,
 };
 
@@ -72,6 +73,7 @@ fn player_spawn_system(
 
 fn player_fire_system(
     mut commands: Commands,
+    settings: Res<Settings>,
     player_state: ResMut<PlayerState>,
     asset_server: Res<AssetServer>,
     audio: Res<Audio>,
@@ -102,7 +104,6 @@ fn player_fire_system(
                     .insert(Velocity { x: 0., y: 1. });
             };
 
-            let mut music = asset_server.load(consts::AUDIOS_SHOT_LOW);
             // FIXME 代码待重构
             match player_state.get_fire_level() {
                 GameLevel::Basic => {
@@ -116,7 +117,6 @@ fn player_fire_system(
                     spawn_laser(0.);
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
-                    music = asset_server.load(consts::AUDIOS_SHOT_MID);
                 }
                 GameLevel::Powerful => {
                     spawn_laser(0.);
@@ -125,7 +125,6 @@ fn player_fire_system(
                     x_offset += 10.;
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
-                    music = asset_server.load(consts::AUDIOS_SHOT_MID);
                 }
                 GameLevel::Invincible => {
                     let middle_offset = 5.;
@@ -136,10 +135,14 @@ fn player_fire_system(
                     x_offset += 10.;
                     spawn_laser(x_offset);
                     spawn_laser(-x_offset);
-                    music = asset_server.load(consts::AUDIOS_SHOT_HIGH);
                 }
             }
-            audio.play(music);
+            audio_ctrl::play_fire_shot(
+                player_state.get_fire_level(),
+                &settings,
+                &asset_server,
+                &audio,
+            );
         }
     }
 }
