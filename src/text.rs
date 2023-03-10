@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use crate::{
     components::{CurrentScoreText, GameOverText, HistoryScoreText, LifeText, TotalScoreText},
-    consts::{self, COMMON_FONT_SIZE, HISTORY_LEN},
+    consts::{self, COMMON_FONT_SIZE, HISTORY_LEN, MIDDLE_FONT_SIZE, SIDE_MARGIN_PX},
     entity::WinSize,
 };
 
@@ -33,8 +33,8 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                 align_items: AlignItems::FlexStart,
                 flex_wrap: FlexWrap::Wrap,
                 position: UiRect {
-                    top: Val::Px(5.0),
-                    left: Val::Px(15.0),
+                    top: Val::Px(SIDE_MARGIN_PX),
+                    left: Val::Px(SIDE_MARGIN_PX),
                     ..default()
                 },
                 ..default()
@@ -72,7 +72,7 @@ fn score_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                     get_history_text(0),
                     TextStyle {
                         font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                        font_size: 24.,
+                        font_size: MIDDLE_FONT_SIZE,
                         color: Color::YELLOW_GREEN,
                     },
                 )]))
@@ -120,23 +120,19 @@ fn lives_text_spawn_system(mut commands: Commands, asset_server: Res<AssetServer
                 get_lives_text(consts::PLAYER_MAX_LIVES),
                 TextStyle {
                     font: asset_server.load("fonts/NotoSansSC-Light.otf"),
-                    font_size: COMMON_FONT_SIZE,
+                    font_size: MIDDLE_FONT_SIZE,
                     color: Color::GOLD,
                 },
             )])
             .with_text_alignment(TextAlignment::Center)
             .with_style(Style {
-                size: Size {
-                    width: Val::Px(60.),
-                    ..default()
-                },
                 position_type: PositionType::Absolute,
                 flex_wrap: FlexWrap::Wrap,
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::FlexEnd,
                 position: UiRect {
-                    top: Val::Px(5.0),
-                    right: Val::Px(15.0),
+                    top: Val::Px(32.0),
+                    right: Val::Px(SIDE_MARGIN_PX),
                     ..default()
                 },
                 ..default()

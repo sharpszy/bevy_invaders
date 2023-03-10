@@ -1,6 +1,10 @@
 use bevy::prelude::*;
 
-use crate::{components::AudioButton, consts, entity::Settings};
+use crate::{
+    components::AudioButton,
+    consts::{self, COMMON_FONT_SIZE, SIDE_MARGIN_PX},
+    entity::Settings,
+};
 
 pub struct SettingsPlugin;
 
@@ -15,11 +19,11 @@ fn settings_spawn(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands
         .spawn(ButtonBundle {
             style: Style {
-                size: Size::all(Val::Px(18.)),
+                size: Size::all(Val::Px(COMMON_FONT_SIZE)),
                 position_type: PositionType::Absolute,
                 position: UiRect {
-                    top: Val::Px(32.),
-                    right: Val::Px(15.0),
+                    top: Val::Px(SIDE_MARGIN_PX),
+                    right: Val::Px(SIDE_MARGIN_PX),
                     ..default()
                 },
                 ..default()

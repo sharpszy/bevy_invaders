@@ -93,6 +93,7 @@ impl PlayerState {
 
     pub fn replay(&mut self) {
         self.lives = consts::PLAYER_MAX_LIVES;
+        self.current_score = 0;
         self.total_score = 0;
     }
 

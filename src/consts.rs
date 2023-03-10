@@ -2,6 +2,8 @@ use std::time::Duration;
 
 // region: --- OTHER
 pub(crate) const COMMON_FONT_SIZE: f32 = 18.;
+pub(crate) const MIDDLE_FONT_SIZE: f32 = 24.;
+pub(crate) const SIDE_MARGIN_PX: f32 = 10.;
 pub(crate) const Z_COORDINATE: f32 = 10.;
 // endregion: -- OTHER
 
