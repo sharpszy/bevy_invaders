@@ -27,7 +27,7 @@ fn settings_spawn(mut commands: Commands, asset_server: Res<AssetServer>) {
             background_color: BackgroundColor(Color::GRAY),
             z_index: ZIndex::Global(10),
             image: UiImage {
-                texture: asset_server.load(consts::ICONS_VOICE_ON),
+                texture: asset_server.load(consts::ICONS_VOICE_OFF),
                 ..default()
             },
             ..default()
