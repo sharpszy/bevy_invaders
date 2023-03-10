@@ -19,7 +19,7 @@ use player::PlayerPlugin;
 use settings::SettingsPlugin;
 use text::TextPlugin;
 
-mod audio_ctrl;
+mod audio_play;
 mod components;
 mod consts;
 mod enemy;
@@ -202,7 +202,7 @@ fn player_laser_hit_enemy_system(
                 // udpate enemy state
                 if enemy_state.update(player_state.get_game_level()) {
                     // play leve upgrade music
-                    audio_ctrl::play_leve_upgrade(&settings, &asset_server, &audio);
+                    audio_play::leve_upgrade(&settings, &asset_server, &audio);
                 }
 
                 // update score text
@@ -296,7 +296,7 @@ fn explosion_animation_system(
     for (entity, mut timer, mut sprite) in query.iter_mut() {
         timer.0.tick(time.delta());
         if timer.0.finished() {
-            audio_ctrl::play_explosion(sprite.index, &settings, &asset_server, &audio);
+            audio_play::explosion(sprite.index, &settings, &asset_server, &audio);
             sprite.index += 1; // move to next sprite cell
             if sprite.index >= consts::EXPLOSION_LEN {
                 commands.entity(entity).despawn();
@@ -330,7 +330,7 @@ fn game_over_system(
         game_state.show_over = true;
         text::game_over_text_spawn(&mut commands, &asset_server, &win_size);
         HistoryScoreText::update(text_set.p4(), player_state.total_score);
-        audio_ctrl::play_game_over(&settings, &asset_server, &audio);
+        audio_play::game_over(&settings, &asset_server, &audio);
     }
 
     if kb.just_pressed(KeyCode::P) {

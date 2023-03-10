@@ -5,17 +5,13 @@ use crate::{
     entity::{GameLevel, Settings},
 };
 
-pub fn play_leve_upgrade(
-    settings: &Res<Settings>,
-    asset_server: &Res<AssetServer>,
-    audio: &Res<Audio>,
-) {
+pub fn leve_upgrade(settings: &Res<Settings>, asset_server: &Res<AssetServer>, audio: &Res<Audio>) {
     if !settings.mute {
         audio.play(asset_server.load(consts::AUDIOS_LEVEL_UPGRADE));
     }
 }
 
-pub fn play_explosion(
+pub fn explosion(
     index: usize,
     settings: &Res<Settings>,
     asset_server: &Res<AssetServer>,
@@ -26,17 +22,13 @@ pub fn play_explosion(
     }
 }
 
-pub fn play_game_over(
-    settings: &Res<Settings>,
-    asset_server: &Res<AssetServer>,
-    audio: &Res<Audio>,
-) {
+pub fn game_over(settings: &Res<Settings>, asset_server: &Res<AssetServer>, audio: &Res<Audio>) {
     if !settings.mute {
         audio.play(asset_server.load(consts::AUDIOS_PLAYER_FAIL));
     }
 }
 
-pub fn play_fire_shot(
+pub fn fire_shot(
     game_leve: GameLevel,
     settings: &Res<Settings>,
     asset_server: &Res<AssetServer>,

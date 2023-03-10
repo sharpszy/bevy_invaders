@@ -4,7 +4,7 @@ use bevy::{prelude::*, time::common_conditions::on_timer};
 use rand::{thread_rng, Rng};
 
 use crate::{
-    audio_ctrl,
+    audio_play,
     components::{CurrentScoreText, FromPlayer, Laser, Movable, Player, SpriteSize, Velocity},
     consts::{self, PLAYER_RESPAWN_DELAY},
     entity::{GameLevel, GameState, Settings},
@@ -137,7 +137,7 @@ fn player_fire_system(
                     spawn_laser(-x_offset);
                 }
             }
-            audio_ctrl::play_fire_shot(
+            audio_play::fire_shot(
                 player_state.get_fire_level(),
                 &settings,
                 &asset_server,
