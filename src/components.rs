@@ -106,3 +106,8 @@ impl Default for ExplosionTimer {
     }
 }
 // endregion: --- Explosion Components
+
+// region: --- Settings Components
+#[derive(Component)]
+pub struct AudioButton;
+// endregion: --- Settings Components

@@ -32,11 +32,16 @@ pub(crate) const FORMATION_MEMBERS_MAX: u32 = 2;
 pub(crate) const HISTORY_LEN: usize = 4;
 // endregion: --- GAME
 
-// region --- AUDIO
-pub(crate) const AUDIO_EXPLOSION: &str = "audio/explosion.wav";
-pub(crate) const AUDIO_LEVEL_UPGRADE: &str = "audio/level-upgrade.wav";
-pub(crate) const AUDIO_PLAYER_FAIL: &str = "audio/player-fail.wav";
-pub(crate) const AUDIO_SHOT_LOW: &str = "audio/shot-low.wav";
-pub(crate) const AUDIO_SHOT_MID: &str = "audio/shot-mid.wav";
-pub(crate) const AUDIO_SHOT_HIGH: &str = "audio/shot-high.wav";
-// endregion --- AUDIO
+// region --- ICONS
+pub(crate) const ICONS_VOICE_ON: &str = "icons/volice_on.png";
+pub(crate) const ICONS_VOICE_OFF: &str = "icons/volice_off.png";
+// endregion --- ICONS
+
+// region --- AUDIOS
+pub(crate) const AUDIOS_EXPLOSION: &str = "audios/explosion.wav";
+pub(crate) const AUDIOS_LEVEL_UPGRADE: &str = "audios/level-upgrade.wav";
+pub(crate) const AUDIOS_PLAYER_FAIL: &str = "audios/player-fail.wav";
+pub(crate) const AUDIOS_SHOT_LOW: &str = "audios/shot-low.wav";
+pub(crate) const AUDIOS_SHOT_MID: &str = "audios/shot-mid.wav";
+pub(crate) const AUDIOS_SHOT_HIGH: &str = "audios/shot-high.wav";
+// endregion --- AUDIOS

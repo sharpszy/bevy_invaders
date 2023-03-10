@@ -39,8 +39,13 @@ pub struct EnemyState {
 
 #[derive(Resource)]
 pub struct GameState {
-    pub show: bool,
+    pub show_over: bool,
     pub is_over: bool,
+}
+
+#[derive(Resource)]
+pub struct Settings {
+    pub mute: bool,
 }
 
 #[derive(Resource)]
@@ -178,7 +183,7 @@ impl EnemyState {
 impl Default for GameState {
     fn default() -> Self {
         Self {
-            show: false,
+            show_over: false,
             is_over: false,
         }
     }
@@ -186,7 +191,13 @@ impl Default for GameState {
 
 impl GameState {
     pub fn reset(&mut self) {
-        self.show = false;
+        self.show_over = false;
         self.is_over = false;
+    }
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self { mute: true }
     }
 }

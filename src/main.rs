@@ -14,8 +14,9 @@ use components::{
     Velocity,
 };
 use enemy::EnemyPlugin;
-use entity::{EnemyState, GameState, GameTextures, PlayerState, WinSize};
+use entity::{EnemyState, GameState, GameTextures, PlayerState, Settings, WinSize};
 use player::PlayerPlugin;
+use settings::SettingsPlugin;
 use text::TextPlugin;
 
 mod components;
@@ -23,15 +24,16 @@ mod consts;
 mod enemy;
 mod entity;
 mod player;
+mod settings;
 mod text;
-mod tools;
+mod utils;
 
 #[macro_use]
 extern crate lazy_static;
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
+        .insert_resource(ClearColor(Color::rgba(0.29, 0.39, 0.46, 0.85)))
         .add_plugins(
             DefaultPlugins
                 .build()
@@ -48,6 +50,7 @@ fn main() {
                 }),
         )
         // .add_system(window_resize_listener) // FIXME, this will be exe every tick time
+        .add_plugin(SettingsPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(EnemyPlugin)
         .add_plugin(TextPlugin)
@@ -97,6 +100,9 @@ fn setup_system(
 
     // add game state resource
     commands.insert_resource(GameState::default());
+
+    // settings resource
+    commands.insert_resource(Settings::default());
 }
 
 #[allow(dead_code)]
@@ -194,7 +200,7 @@ fn player_laser_hit_enemy_system(
                 // udpate enemy state
                 if enemy_state.update(player_state.get_game_level()) {
                     // play leve upgrade music
-                    let music = asset_server.load(consts::AUDIO_LEVEL_UPGRADE);
+                    let music = asset_server.load(consts::AUDIOS_LEVEL_UPGRADE);
                     audio.play(music);
                 }
 
@@ -289,7 +295,7 @@ fn explosion_animation_system(
         timer.0.tick(time.delta());
         if timer.0.finished() {
             if sprite.index == 0 {
-                let music = asset_server.load(consts::AUDIO_EXPLOSION);
+                let music = asset_server.load(consts::AUDIOS_EXPLOSION);
                 audio.play(music);
             }
             sprite.index += 1; // move to next sprite cell
@@ -320,9 +326,9 @@ fn game_over_system(
     if !game_state.is_over {
         return;
     }
-    if !game_state.show {
-        game_state.show = true;
-        let music = asset_server.load(consts::AUDIO_PLAYER_FAIL);
+    if !game_state.show_over {
+        game_state.show_over = true;
+        let music = asset_server.load(consts::AUDIOS_PLAYER_FAIL);
         text::game_over_text_spawn(&mut commands, asset_server, win_size);
         HistoryScoreText::update(text_set.p4(), player_state.total_score);
         audio.play(music);
