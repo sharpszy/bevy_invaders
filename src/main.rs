@@ -42,7 +42,7 @@ fn main() {
                 .add_before::<bevy::asset::AssetPlugin, _>(EmbeddedAssetPlugin)
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: "Bevy Indavers!".to_string(),
+                        title: "侵入者！".to_string(),
                         resolution: WindowResolution::new(598.0, 676.0),
                         resizable: false,
                         ..Default::default()

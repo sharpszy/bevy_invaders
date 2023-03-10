@@ -199,6 +199,6 @@ impl GameState {
 
 impl Default for Settings {
     fn default() -> Self {
-        Self { mute: true }
+        Self { mute: false }
     }
 }
