@@ -166,11 +166,11 @@ fn player_keyboard_event_system(
         velocity.x = if (kb.pressed(KeyCode::Left) || kb.pressed(KeyCode::A))
             && t.translation.x > -x_half_size
         {
-            -1.
+            -0.7
         } else if (kb.pressed(KeyCode::Right) || kb.pressed(KeyCode::D))
             && t.translation.x < x_half_size
         {
-            1.
+            0.7
         } else {
             0.
         };
